@@ -2,10 +2,10 @@
 #include "strings.hpp"
 
 namespace cp {
-// Subsets by positions (equal input values remain separate choices).
-// TC O(2^n + total callback work), recursion/path SC O(n).
-// Copying every emitted subset adds O(n*2^n) time and output storage.
-// Callback must not retain a reference to the temporary path.
+/// Subsets by positions (equal input values remain separate choices).
+/// TC O(2^n + total callback work), recursion/path SC O(n).
+/// Copying every emitted subset adds O(n*2^n) time and output storage.
+/// Callback must not retain a reference to the temporary path.
 template<class Visit>
 void enumerate_subsets(const std::vector<i64>& a, Visit visit) {
     std::vector<i64> path;
@@ -20,16 +20,16 @@ void enumerate_subsets(const std::vector<i64>& a, Visit visit) {
     dfs(dfs, 0);
 }
 
-// Unique permutations, lexicographic order, duplicate values supported.
-// TC O(n log n + n*P + callback work), P<=n!; SC O(n) input copy.
+/// Unique permutations, lexicographic order, duplicate values supported.
+/// TC O(n log n + n*P + callback work), P<=n!; SC O(n) input copy.
 template<class Visit>
 void enumerate_permutations(std::vector<i64> a, Visit visit) {
     std::sort(a.begin(), a.end());
     do { visit(a); } while (std::next_permutation(a.begin(), a.end()));
 }
 
-// Includes both mask itself and zero. TC O(2^popcount(mask) * callback_cost),
-// SC O(1) apart from callback storage.
+/// Includes both mask itself and zero. TC O(2^popcount(mask) * callback_cost),
+/// SC O(1) apart from callback storage.
 template<class Visit>
 void enumerate_submasks(std::uint64_t mask, Visit visit) {
     std::uint64_t sub = mask;
@@ -40,7 +40,7 @@ void enumerate_submasks(std::uint64_t mask, Visit visit) {
     }
 }
 
-// TC O(2^n), SC O(1) excluding O(2^n) output. Includes empty subset.
+/// TC O(2^n), SC O(1) excluding O(2^n) output. Includes empty subset.
 inline std::vector<i64> subset_sums(const std::vector<i64>& a) {
     assert(a.size() <= 24); // Resource guard; intended for one MITM half.
     std::vector<i64> sums{0};
@@ -52,11 +52,11 @@ inline std::vector<i64> subset_sums(const std::vector<i64>& a) {
     return sums;
 }
 
-// Meet in the middle: count subsets summing to target, including empty subset.
-// Negative values and duplicates supported. n<=40 is the practical target.
-// TC O(n*2^(ceil(n/2))), SC O(2^(ceil(n/2))) for sums of both halves.
-// Note 1: Split n decisions into two lists of roughly 2^(n/2) sums, sort one,
-// and binary-search matching complements; do not enumerate all 2^n subsets.
+/// Meet in the middle: count subsets summing to target, including empty subset.
+/// Negative values and duplicates supported. n<=40 is the practical target.
+/// TC O(n*2^(ceil(n/2))), SC O(2^(ceil(n/2))) for sums of both halves.
+/// Note 1: Split n decisions into two lists of roughly 2^(n/2) sums, sort one,
+/// and binary-search matching complements; do not enumerate all 2^n subsets.
 inline i64 count_subsets_sum(const std::vector<i64>& a, i64 target) {
     assert(a.size() <= 40);
     auto middle = a.begin() + static_cast<std::ptrdiff_t>(a.size() / 2);
@@ -71,8 +71,8 @@ inline i64 count_subsets_sum(const std::vector<i64>& a, i64 target) {
     return result;
 }
 
-// Inversion count AND sort in place. Equal values are not inversions.
-// TC O(n log n), SC O(n) merge buffer + O(log n) recursion.
+/// Inversion count AND sort in place. Equal values are not inversions.
+/// TC O(n log n), SC O(n) merge buffer + O(log n) recursion.
 inline i64 count_inversions(std::vector<i64>& a) {
     std::vector<i64> buffer(a.size());
     auto solve = [&](auto&& self, int l, int r) -> i64 {
@@ -89,12 +89,12 @@ inline i64 count_inversions(std::vector<i64>& a) {
     };
     return solve(solve, 0, static_cast<int>(a.size()));
 }
-// Positive candidates, target>=0, unique VALUE combinations. reuse=true allows
-// unlimited copies; reuse=false uses each input occurrence at most once.
-// SC O(n+h) excluding output, h=max combination length (<=target/min_value).
-// One-use TC O(n*2^n + output_size). Unlimited TC conservatively
-// O(n log n + n*C(n+h,h) + output_size): at most C(n+h,h) nondecreasing paths,
-// each scans <=n next candidates. This is exponential, NOT O(n*target).
+/// Positive candidates, target>=0, unique VALUE combinations. reuse=true allows
+/// unlimited copies; reuse=false uses each input occurrence at most once.
+/// SC O(n+h) excluding output, h=max combination length (<=target/min_value).
+/// One-use TC O(n*2^n + output_size). Unlimited TC conservatively
+/// O(n log n + n*C(n+h,h) + output_size): at most C(n+h,h) nondecreasing paths,
+/// each scans <=n next candidates. This is exponential, NOT O(n*target).
 inline std::vector<std::vector<i64>> combination_sum(std::vector<i64> candidates,
                                                       i64 target, bool reuse = true) {
     assert(target >= 0);
@@ -117,9 +117,9 @@ inline std::vector<std::vector<i64>> combination_sum(std::vector<i64> candidates
     return result;
 }
 
-// n pairs of parentheses. TC O(n*C_n + callback_work), SC O(n) recursion/path,
-// C_n = Catalan number (number of valid outputs). n=0 emits one empty string.
-// Callbacks must copy data they keep; the path reference is reused.
+/// n pairs of parentheses. TC O(n*C_n + callback_work), SC O(n) recursion/path,
+/// C_n = Catalan number (number of valid outputs). n=0 emits one empty string.
+/// Callbacks must copy data they keep; the path reference is reused.
 template<class Visit>
 void enumerate_parentheses(int n, Visit visit) {
     assert(n >= 0);
@@ -132,10 +132,10 @@ void enumerate_parentheses(int n, Visit visit) {
     dfs(dfs, 0, 0);
 }
 
-// Enumerate palindromic partitions using a precomputed table.
-// TC O(n^2+n*2^n+callback_work), SC O(n^2+n), excluding retained output.
-// Every possible set of cuts is a subset of n-1 boundaries; strings are copied
-// into the current path. Empty string emits one empty partition.
+/// Enumerate palindromic partitions using a precomputed table.
+/// TC O(n^2+n*2^n+callback_work), SC O(n^2+n), excluding retained output.
+/// Every possible set of cuts is a subset of n-1 boundaries; strings are copied
+/// into the current path. Empty string emits one empty partition.
 template<class Visit>
 void enumerate_palindrome_partitions(const std::string& s, Visit visit) {
     auto pal = palindrome_table(s);
@@ -152,10 +152,10 @@ void enumerate_palindrome_partitions(const std::string& s, Visit visit) {
     dfs(dfs, 0);
 }
 
-// Four-direction word search without reusing a cell. Rectangular byte grid;
-// empty word -> true. Does not modify the input grid.
-// For L>0: TC O(RC*4*3^(L-1)+R), SC O(RC+L); after the first move there
-// are at most 3 next choices, since the previous cell is already used.
+/// Four-direction word search without reusing a cell. Rectangular byte grid;
+/// empty word -> true. Does not modify the input grid.
+/// For L>0: TC O(RC*4*3^(L-1)+R), SC O(RC+L); after the first move there
+/// are at most 3 next choices, since the previous cell is already used.
 inline bool word_exists(const std::vector<std::string>& grid, const std::string& word) {
     int rows = static_cast<int>(grid.size()), cols = rows ? static_cast<int>(grid[0].size()) : 0;
     for (const auto& row : grid) assert(static_cast<int>(row.size()) == cols);
@@ -176,13 +176,13 @@ inline bool word_exists(const std::vector<std::string>& grid, const std::string&
         if (dfs(dfs, r, c, 0)) return true;
     return false;
 }
-// Multiword grid search: lowercase a-z grid and NONEMPTY dictionary words;
-// duplicates produce one output word, output order unspecified. Input unchanged.
-// Shared trie prefixes prune impossible paths; each word is emitted at most once.
-// TC O(S+w+R+RC*4*3^(L-1)+output_chars), L=max word length (L>=1),
-// S=total dictionary characters, w=word count; SC O(26S+RC+L).
-// Empty dictionary returns no words. Prefix pruning helps in practice but does
-// NOT remove the exponential worst case. Recursion depth <=min(RC,L).
+/// Multiword grid search: lowercase a-z grid and NONEMPTY dictionary words;
+/// duplicates produce one output word, output order unspecified. Input unchanged.
+/// Shared trie prefixes prune impossible paths; each word is emitted at most once.
+/// TC O(S+w+R+RC*4*3^(L-1)+output_chars), L=max word length (L>=1),
+/// S=total dictionary characters, w=word count; SC O(26S+RC+L).
+/// Empty dictionary returns no words. Prefix pruning helps in practice but does
+/// NOT remove the exponential worst case. Recursion depth <=min(RC,L).
 inline std::vector<std::string> find_words(const std::vector<std::string>& grid,
                                          const std::vector<std::string>& dictionary) {
     Trie trie;
@@ -215,10 +215,10 @@ inline std::vector<std::string> find_words(const std::vector<std::string>& grid,
     return answer;
 }
 
-// N-Queens, emits column index for each row; n=0 emits one empty placement.
-// Bitmasks prune occupied columns/diagonals. TC O(n*n! + callback_work) is a
-// conservative bound (column extraction O(n) per state), SC O(n).
-// Exponential: n<=15 is the intended practical limit; mask supports up to 20.
+/// N-Queens, emits column index for each row; n=0 emits one empty placement.
+/// Bitmasks prune occupied columns/diagonals. TC O(n*n! + callback_work) is a
+/// conservative bound (column extraction O(n) per state), SC O(n).
+/// Exponential: n<=15 is the intended practical limit; mask supports up to 20.
 template<class Visit>
 void enumerate_n_queens(int n, Visit visit) {
     assert(0 <= n && n <= 20);

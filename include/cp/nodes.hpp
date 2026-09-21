@@ -2,9 +2,9 @@
 #include "common.hpp"
 
 namespace cp {
-// Local practice definitions. On LeetCode use the site's node definitions and
-// paste only the needed function (remove the namespace if appropriate).
-// These helpers do not allocate, delete, or own nodes.
+/// Local practice definitions. On LeetCode use the site's node definitions and
+/// paste only the needed function (remove the namespace if appropriate).
+/// These helpers do not allocate, delete, or own nodes.
 struct ListNode {
     int val;
     ListNode* next = nullptr;
@@ -17,7 +17,7 @@ struct TreeNode {
     explicit TreeNode(int value) : val(value) {}
 };
 
-// Acyclic list. Mutates links. TC O(n), SC O(1).
+/// Acyclic list. Mutates links. TC O(n), SC O(1).
 inline ListNode* reverse_list(ListNode* head) {
     ListNode* previous = nullptr;
     while (head) {
@@ -29,9 +29,9 @@ inline ListNode* reverse_list(ListNode* head) {
     return previous;
 }
 
-// Floyd cycle detection: returns cycle ENTRY or nullptr.
-// TC O(n), SC O(1). After collision, moving one pointer to the head and
-// advancing both one step makes them meet at the entry.
+/// Floyd cycle detection: returns cycle ENTRY or nullptr.
+/// TC O(n), SC O(1). After collision, moving one pointer to the head and
+/// advancing both one step makes them meet at the entry.
 inline ListNode* cycle_entry(ListNode* head) {
     ListNode* slow = head;
     ListNode* fast = head;
@@ -46,8 +46,8 @@ inline ListNode* cycle_entry(ListNode* head) {
     return nullptr;
 }
 
-// Two sorted, ACYCLIC and DISJOINT lists. Relinks existing nodes (stable).
-// TC O(n+m), SC O(1); shared tails violate the disjointness precondition.
+/// Two sorted, ACYCLIC and DISJOINT lists. Relinks existing nodes (stable).
+/// TC O(n+m), SC O(1); shared tails violate the disjointness precondition.
 inline ListNode* merge_sorted_lists(ListNode* a, ListNode* b) {
     ListNode dummy(0);
     ListNode* tail = &dummy;
@@ -60,8 +60,8 @@ inline ListNode* merge_sorted_lists(ListNode* a, ListNode* b) {
     return dummy.next;
 }
 
-// Inorder traversal, TC O(n), SC O(h) stack, excluding O(n) output.
-// h can be n for a skewed tree, not always log n.
+/// Inorder traversal, TC O(n), SC O(h) stack, excluding O(n) output.
+/// h can be n for a skewed tree, not always log n.
 inline std::vector<int> inorder(TreeNode* root) {
     std::vector<TreeNode*> stack;
     std::vector<int> result;
@@ -74,7 +74,7 @@ inline std::vector<int> inorder(TreeNode* root) {
     return result;
 }
 
-// Level order, TC O(n), SC O(w) queue, w = maximum width; output O(n).
+/// Level order, TC O(n), SC O(w) queue, w = maximum width; output O(n).
 inline std::vector<std::vector<int>> level_order(TreeNode* root) {
     if (!root) return {};
     std::queue<TreeNode*> q;
@@ -94,7 +94,7 @@ inline std::vector<std::vector<int>> level_order(TreeNode* root) {
     return result;
 }
 
-// Strict BST (duplicates forbidden); TC O(n), SC O(h).
+/// Strict BST (duplicates forbidden); TC O(n), SC O(h).
 inline bool is_bst(TreeNode* root) {
     std::vector<TreeNode*> stack;
     std::optional<int> previous;
@@ -107,8 +107,8 @@ inline bool is_bst(TreeNode* root) {
     }
     return true;
 }
-// Second middle for even length, nullptr for empty; acyclic list.
-// TC O(n), SC O(1).
+/// Second middle for even length, nullptr for empty; acyclic list.
+/// TC O(n), SC O(1).
 inline ListNode* middle_node(ListNode* head) {
     auto* slow = head;
     auto* fast = head;
@@ -116,8 +116,8 @@ inline ListNode* middle_node(ListNode* head) {
     return slow;
 }
 
-// Acyclic lists may share a tail. Pointer identity, not equal values.
-// TC O(n+m), SC O(1): switching heads equalizes total distance walked.
+/// Acyclic lists may share a tail. Pointer identity, not equal values.
+/// TC O(n+m), SC O(1): switching heads equalizes total distance walked.
 inline ListNode* list_intersection(ListNode* a, ListNode* b) {
     auto* x = a;
     auto* y = b;
@@ -125,8 +125,8 @@ inline ListNode* list_intersection(ListNode* a, ListNode* b) {
     return x;
 }
 
-// Reverse complete groups of k nodes; leftover short group is unchanged.
-// Acyclic list, k>=1. TC O(n), SC O(1), mutates links.
+/// Reverse complete groups of k nodes; leftover short group is unchanged.
+/// Acyclic list, k>=1. TC O(n), SC O(1), mutates links.
 inline ListNode* reverse_k_group(ListNode* head, int k) {
     assert(k >= 1);
     ListNode dummy(0);
@@ -150,8 +150,8 @@ inline ListNode* reverse_k_group(ListNode* head, int k) {
     return dummy.next;
 }
 
-// Acyclic list, TC O(n), SC O(1). Reverses the second half temporarily and
-// RESTORES every original link before returning, including on a mismatch.
+/// Acyclic list, TC O(n), SC O(1). Reverses the second half temporarily and
+/// RESTORES every original link before returning, including on a mismatch.
 inline bool palindrome_list(ListNode* head) {
     if (!head || !head->next) return true;
     auto* middle = head;
@@ -165,8 +165,8 @@ inline bool palindrome_list(ListNode* head) {
     return equal;
 }
 
-// Stable bottom-up merge sort of an acyclic list, mutates links.
-// TC O(n log n), SC O(1): iterative rounds avoid recursive O(log n) frames.
+/// Stable bottom-up merge sort of an acyclic list, mutates links.
+/// TC O(n log n), SC O(1): iterative rounds avoid recursive O(log n) frames.
 inline ListNode* sort_list(ListNode* head) {
     int n = 0;
     for (auto* node = head; node; node = node->next) ++n;
@@ -195,10 +195,10 @@ inline ListNode* sort_list(ListNode* head) {
     return dummy.next;
 }
 
-// Generic postorder tree DP without native recursion. combine(node,left,right)
-// computes one subtree state; empty is the identity for absent children.
-// With constant-sized/copyable State and O(1) combine: TC O(n), SC O(h).
-// More generally account for State copies and combine's own TC/SC.
+/// Generic postorder tree DP without native recursion. combine(node,left,right)
+/// computes one subtree state; empty is the identity for absent children.
+/// With constant-sized/copyable State and O(1) combine: TC O(n), SC O(h).
+/// More generally account for State copies and combine's own TC/SC.
 template<class State, class Combine>
 State binary_tree_fold(TreeNode* root, const State& empty, Combine combine) {
     if (!root) return empty;
@@ -229,8 +229,8 @@ struct BinaryTreeStats {
     int diameter = 0; // Edge count, not node count.
     std::optional<i64> max_path_sum; // NONEMPTY path; nullopt for null root.
 };
-// Height, height-balance, diameter, and maximum path sum in one postorder.
-// TC O(n), SC O(h). Paths may start/end anywhere, but cannot branch.
+/// Height, height-balance, diameter, and maximum path sum in one postorder.
+/// TC O(n), SC O(h). Paths may start/end anywhere, but cannot branch.
 inline BinaryTreeStats binary_tree_stats(TreeNode* root) {
     BinaryTreeStats result;
     using State = std::pair<int, i64>; // Height, best nonnegative upward gain.
@@ -248,8 +248,8 @@ inline BinaryTreeStats binary_tree_stats(TreeNode* root) {
     return result;
 }
 
-// One-query LCA by POINTER identity. Returns nullptr if either node is absent
-// or nullptr; p==q is supported. TC O(n), SC O(h); no preprocessing.
+/// One-query LCA by POINTER identity. Returns nullptr if either node is absent
+/// or nullptr; p==q is supported. TC O(n), SC O(h); no preprocessing.
 inline TreeNode* binary_tree_lca(TreeNode* root, TreeNode* p, TreeNode* q) {
     if (!p || !q) return nullptr;
     TreeNode* answer = nullptr;
@@ -261,9 +261,9 @@ inline TreeNode* binary_tree_lca(TreeNode* root, TreeNode* p, TreeNode* q) {
     return answer;
 }
 
-// Count downward ancestor-to-descendant paths of sum=target, any endpoints.
-// TC O(n log(h+2)), SC O(h) using a deterministic map of the ACTIVE path.
-// Enter/exit events undo prefix frequencies: sibling branches cannot mix.
+/// Count downward ancestor-to-descendant paths of sum=target, any endpoints.
+/// TC O(n log(h+2)), SC O(h) using a deterministic map of the ACTIVE path.
+/// Enter/exit events undo prefix frequencies: sibling branches cannot mix.
 inline i64 count_tree_path_sum(TreeNode* root, i64 target) {
     if (!root) return 0;
     struct Event { TreeNode* node; i64 prefix; bool exit; };

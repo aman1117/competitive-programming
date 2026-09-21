@@ -2,9 +2,9 @@
 #include "common.hpp"
 
 namespace cp {
-// pi[i] = longest proper prefix of s[0..i] that is also a suffix.
-// TC O(n), SC O(1) excluding output. The matched length can increase only n
-// times; all fallback decreases together are O(n), despite the nested while.
+/// pi[i] = longest proper prefix of s[0..i] that is also a suffix.
+/// TC O(n), SC O(1) excluding output. The matched length can increase only n
+/// times; all fallback decreases together are O(n), despite the nested while.
 inline std::vector<int> prefix_function(const std::string& s) {
     int n = static_cast<int>(s.size());
     std::vector<int> pi(n);
@@ -17,8 +17,8 @@ inline std::vector<int> prefix_function(const std::string& s) {
     return pi;
 }
 
-// KMP finds all occurrences, including overlaps. Empty pattern matches n+1
-// boundaries. TC O(n+m), SC O(m) prefix table, excluding O(matches) output.
+/// KMP finds all occurrences, including overlaps. Empty pattern matches n+1
+/// boundaries. TC O(n+m), SC O(m) prefix table, excluding O(matches) output.
 inline std::vector<int> kmp_search(const std::string& text, const std::string& pattern) {
     int n = static_cast<int>(text.size()), m = static_cast<int>(pattern.size());
     std::vector<int> result;
@@ -37,8 +37,8 @@ inline std::vector<int> kmp_search(const std::string& text, const std::string& p
     return result;
 }
 
-// z[i] = LCP(s, s.substr(i)), with z[0] = 0 by convention.
-// TC O(n), SC O(1) excluding output. [l,r) is the rightmost known Z-box.
+/// z[i] = LCP(s, s.substr(i)), with z[0] = 0 by convention.
+/// TC O(n), SC O(1) excluding output. [l,r) is the rightmost known Z-box.
 inline std::vector<int> z_function(const std::string& s) {
     int n = static_cast<int>(s.size());
     std::vector<int> z(n);
@@ -50,6 +50,8 @@ inline std::vector<int> z_function(const std::string& s) {
     return z;
 }
 
+/// @brief Lowercase a-z prefix tree with duplicate word and prefix counts.
+/// Insert amortized O(L), lookup O(L); worst-case retained SC O(26*S).
 class Trie {
     struct Node {
         std::array<int, 26> next;
@@ -70,11 +72,11 @@ class Trie {
         return v;
     }
 public:
-    // Lowercase a-z only; duplicates and empty strings supported.
-    // Insert amortized TC O(L); count/prefix_count worst-case TC O(L).
-    // SC O(1) query, O(L) new nodes per insert.
-    // Total storage O(26*S), S = total inserted characters + 1 (worst case).
-    // Returns the terminal node ID, useful for associating payloads with words.
+    /// Lowercase a-z only; duplicates and empty strings supported.
+    /// Insert amortized TC O(L); count/prefix_count worst-case TC O(L).
+    /// SC O(1) query, O(L) new nodes per insert.
+    /// Total storage O(26*S), S = total inserted characters + 1 (worst case).
+    /// Returns the terminal node ID, useful for associating payloads with words.
     int insert(const std::string& word) {
         int v = 0;
         ++nodes[v].through;
@@ -91,36 +93,43 @@ public:
         ++nodes[v].terminal;
         return v;
     }
+    /// @brief Count exact occurrences of an inserted word, including duplicates.
+    /// TC O(word length); auxiliary SC O(1). Missing words return zero.
     int count(const std::string& word) const {
         int v = walk(word);
         return v == -1 ? 0 : nodes[v].terminal;
     }
+    /// @brief Count inserted words beginning with this prefix, including duplicates.
+    /// TC O(prefix length); auxiliary SC O(1). Empty prefix counts every word.
     int prefix_count(const std::string& prefix) const {
         int v = walk(prefix);
         return v == -1 ? 0 : nodes[v].through;
     }
-    // O(1) traversal primitives for trie-guided DP/backtracking; root is node 0.
-    // A missing transition returns -1; do not pass -1 back as a node.
+    /// O(1) traversal primitives for trie-guided DP/backtracking; root is node 0.
+    /// A missing transition returns -1; do not pass -1 back as a node.
     int transition(int node, char ch) const {
         assert(0 <= node && node < static_cast<int>(nodes.size()));
         return nodes[node].next[letter(ch)];
     }
+    /// @brief Count words ending at a valid trie node. TC/SC O(1).
     int terminal_count(int node) const {
         assert(0 <= node && node < static_cast<int>(nodes.size()));
         return nodes[node].terminal;
     }
 };
 
+/// @brief Double polynomial fingerprints for constant-time substring comparison.
+/// Build TC/space O(n), query O(1). Equal hashes can collide; compare lengths too.
 class RollingHash {
     static constexpr std::array<i64, 2> mod{{1'000'000'007, 1'000'000'009}};
     static constexpr i64 base = 911382323;
     int n;
     std::vector<std::array<i64, 2>> prefix, power;
 public:
-    // Build TC/space O(n); substring hash TC/SC O(1).
-    // Note 1: Hash equality is NOT proof of string equality. These fixed double
-    // hashes can collide, especially with adversarial inputs. Prefer KMP/Z for
-    // exact matching, or verify equal-hash candidates (which adds comparison cost).
+    /// Build TC/space O(n); substring hash TC/SC O(1).
+    /// Note 1: Hash equality is NOT proof of string equality. These fixed double
+    /// hashes can collide, especially with adversarial inputs. Prefer KMP/Z for
+    /// exact matching, or verify equal-hash candidates (which adds comparison cost).
     explicit RollingHash(const std::string& s)
         : n(static_cast<int>(s.size())), prefix(n + 1), power(n + 1) {
         power[0] = {1, 1};
@@ -129,6 +138,8 @@ public:
             prefix[i + 1][k] = (prefix[i][k] * base + static_cast<unsigned char>(s[i]) + 1) % mod[k];
         }
     }
+    /// @brief Return the normalized double hash of substring [l,r).
+    /// TC/SC O(1). Hash equality is not proof of equality; collisions are possible.
     std::array<i64, 2> hash(int l, int r) const {
         assert(0 <= l && l <= r && r <= n);
         std::array<i64, 2> answer{};
@@ -143,9 +154,9 @@ struct PalindromeRadii {
     // Sum of all odd/even radii = number of nonempty palindromic substrings.
     std::vector<int> odd, even;
 };
-// Manacher: TC O(n), SC O(1) excluding O(n) output.
-// Note 2: Mirrored radii reuse known comparisons. Successful new comparisons
-// outside the current palindrome advance its right boundary at most n times.
+/// Manacher: TC O(n), SC O(1) excluding O(n) output.
+/// Note 2: Mirrored radii reuse known comparisons. Successful new comparisons
+/// outside the current palindrome advance its right boundary at most n times.
 inline PalindromeRadii manacher(const std::string& s) {
     int n = static_cast<int>(s.size());
     PalindromeRadii result{std::vector<int>(n), std::vector<int>(n)};
@@ -163,9 +174,9 @@ inline PalindromeRadii manacher(const std::string& s) {
     }
     return result;
 }
-// pal[l][r] says s[l..r] (INCLUSIVE endpoints) is a palindrome.
-// TC O(n^2), SC O(1) excluding O(n^2) output. Empty ranges are not stored.
-// Shared by partition enumeration and minimum-cut DP.
+/// pal[l][r] says s[l..r] (INCLUSIVE endpoints) is a palindrome.
+/// TC O(n^2), SC O(1) excluding O(n^2) output. Empty ranges are not stored.
+/// Shared by partition enumeration and minimum-cut DP.
 inline std::vector<std::vector<char>> palindrome_table(const std::string& s) {
     int n = static_cast<int>(s.size());
     std::vector<std::vector<char>> pal(n, std::vector<char>(n));

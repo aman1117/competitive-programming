@@ -2,10 +2,10 @@
 #include "arrays.hpp"
 
 namespace cp {
-// Mo's algorithm: number of distinct values in each STATIC [l,r) query.
-// Returns answers in original query order; no point updates supported.
-// TC O(n log n + q log(q+1) + (n+q)*sqrt(n+1)), SC O(n+q).
-// Compression gives O(1) add/remove; using a map inside them adds log n.
+/// Mo's algorithm: number of distinct values in each STATIC [l,r) query.
+/// Returns answers in original query order; no point updates supported.
+/// TC O(n log n + q log(q+1) + (n+q)*sqrt(n+1)), SC O(n+q).
+/// Compression gives O(1) add/remove; using a map inside them adds log n.
 inline std::vector<int> mo_distinct(const std::vector<i64>& a,
                                    const std::vector<std::pair<int, int>>& queries) {
     int n = static_cast<int>(a.size()), q = static_cast<int>(queries.size());
@@ -35,12 +35,14 @@ inline std::vector<int> mo_distinct(const std::vector<i64>& a,
     return result;
 }
 
+/// @brief Binary lifting along one successor per vertex; cycles are allowed.
+/// Build TC/space O(nB), jump TC O(B), where B is the maximum-step bit width.
 class FunctionalJump {
     std::vector<std::vector<int>> up;
     std::uint64_t maximum;
 public:
-    // successor[v] is exactly one valid next vertex (cycles/self-loops allowed).
-    // Precompute TC/space O(nB), B=max(1,bit_width(max_steps)).
+    /// successor[v] is exactly one valid next vertex (cycles/self-loops allowed).
+    /// Precompute TC/space O(nB), B=max(1,bit_width(max_steps)).
     FunctionalJump(const std::vector<int>& successor, std::uint64_t max_steps)
         : maximum(max_steps) {
         int n = static_cast<int>(successor.size()), levels = 1;
@@ -50,7 +52,7 @@ public:
         for (int b = 1; b < levels; ++b)
             for (int v = 0; v < n; ++v) up[b][v] = up[b - 1][up[b - 1][v]];
     }
-    // TC O(B), SC O(1). Require steps <= precomputed maximum.
+    /// TC O(B), SC O(1). Require steps <= precomputed maximum.
     int jump(int vertex, std::uint64_t steps) const {
         assert(vertex >= 0 && vertex < static_cast<int>(up[0].size()) && steps <= maximum);
         for (int b = 0; steps; ++b, steps >>= 1) if (steps & 1U) vertex = up[b][vertex];

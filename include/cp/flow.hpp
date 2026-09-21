@@ -2,7 +2,7 @@
 #include "graphs.hpp"
 
 namespace cp {
-// Stretch topic: integral-capacity directed maximum flow, with residual edges.
+/// Stretch topic: integral-capacity directed maximum flow, with residual edges.
 class Dinic {
     struct Arc { int to, reverse; i64 capacity; };
     int n;
@@ -34,11 +34,11 @@ class Dinic {
         return 0;
     }
 public:
-    // Total stored space O(V+E). DFS recursion O(V): very deep level graphs
-    // may exhaust the native stack; use an iterative flow implementation there.
+    /// Total stored space O(V+E). DFS recursion O(V): very deep level graphs
+    /// may exhaust the native stack; use an iterative flow implementation there.
     explicit Dinic(int vertices) : n(vertices), g(vertices), level(vertices), next(vertices) {}
-    // Amortized TC O(1), space O(1) per edge. Parallel edges allowed; self-loops
-    // excluded (they never improve s-t flow). Capacities and total flow < INF.
+    /// Amortized TC O(1), space O(1) per edge. Parallel edges allowed; self-loops
+    /// excluded (they never improve s-t flow). Capacities and total flow < INF.
     void add_edge(int from, int to, i64 capacity) {
         assert(0 <= from && from < n && 0 <= to && to < n && from != to);
         assert(0 <= capacity && capacity < INF);
@@ -46,10 +46,10 @@ public:
         g[from].push_back({to, b, capacity});
         g[to].push_back({from, a, 0});
     }
-    // General-case TC O(V^2 E), auxiliary SC O(V).
-    // Note 1: At most V level phases; current-arc pointers bound each blocking
-    // flow by O(VE). Do not claim the faster unit-capacity bound for all graphs.
-    // Mutates residual capacities; a second call returns only ADDITIONAL flow.
+    /// General-case TC O(V^2 E), auxiliary SC O(V).
+    /// Note 1: At most V level phases; current-arc pointers bound each blocking
+    /// flow by O(VE). Do not claim the faster unit-capacity bound for all graphs.
+    /// Mutates residual capacities; a second call returns only ADDITIONAL flow.
     i64 max_flow(int source, int sink) {
         assert(0 <= source && source < n && 0 <= sink && sink < n && source != sink);
         i64 flow = 0;
@@ -59,8 +59,8 @@ public:
         }
         return flow;
     }
-    // After max_flow, reachable vertices form source side of a minimum cut.
-    // TC O(V+E), SC O(V), including returned reachability flags.
+    /// After max_flow, reachable vertices form source side of a minimum cut.
+    /// TC O(V+E), SC O(V), including returned reachability flags.
     std::vector<char> min_cut_side(int source) const {
         assert(0 <= source && source < n);
         std::vector<char> seen(n);
@@ -76,10 +76,10 @@ public:
     }
 };
 
-// Kuhn augmenting-path bipartite matching. g[left] lists right-side indices.
-// Output right_match[r] = matched left vertex, or -1.
-// TC O(L*(L+E)+R), SC O(L+R), including recursion and output.
-// Put the smaller partition on the left; Hopcroft-Karp is a later upgrade.
+/// Kuhn augmenting-path bipartite matching. g[left] lists right-side indices.
+/// Output right_match[r] = matched left vertex, or -1.
+/// TC O(L*(L+E)+R), SC O(L+R), including recursion and output.
+/// Put the smaller partition on the left; Hopcroft-Karp is a later upgrade.
 inline std::vector<int> bipartite_matching(const Graph& g, int right_count) {
     std::vector<int> match(right_count, -1), seen(g.size(), -1);
     int stamp = 0;

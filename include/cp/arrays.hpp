@@ -2,20 +2,22 @@
 #include "common.hpp"
 
 namespace cp {
-// Prefix sums: build TC O(n), SC O(1) excluding O(n) output.
-// Query sum [l,r) as prefix[r]-prefix[l]: TC/SC O(1).
+/// Prefix sums: build TC O(n), SC O(1) excluding O(n) output.
+/// Query sum [l,r) as prefix[r]-prefix[l]: TC/SC O(1).
 inline std::vector<i64> prefix_sums(const std::vector<i64>& a) {
     std::vector<i64> p(a.size() + 1);
     for (int i = 0; i < static_cast<int>(a.size()); ++i) p[i + 1] = p[i] + a[i];
     return p;
 }
 
+/// @brief Padded 2D prefix sums for immutable rectangular matrices.
+/// Build TC/space O((rows+1)*(cols+1)); rectangle queries TC/SC O(1).
 class Prefix2D {
     std::vector<std::vector<i64>> p;
     int rows, cols;
 public:
-    // Rectangular matrix. Build TC/space O((rows+1)*(cols+1)), including padding.
-    // This is O(rows*cols) for positive dimensions; zero-width rows also work.
+    /// Rectangular matrix. Build TC/space O((rows+1)*(cols+1)), including padding.
+    /// This is O(rows*cols) for positive dimensions; zero-width rows also work.
     explicit Prefix2D(const std::vector<std::vector<i64>>& a)
         : rows(static_cast<int>(a.size())),
           cols(rows ? static_cast<int>(a[0].size()) : 0) {
@@ -26,7 +28,7 @@ public:
                 p[r + 1][c + 1] = a[r][c] + p[r][c + 1] + p[r + 1][c] - p[r][c];
         }
     }
-    // Rectangle [r1,r2) x [c1,c2). TC/SC O(1).
+    /// Rectangle [r1,r2) x [c1,c2). TC/SC O(1).
     i64 sum(int r1, int c1, int r2, int c2) const {
         assert(0 <= r1 && r1 <= r2 && r2 <= rows);
         assert(0 <= c1 && c1 <= c2 && c2 <= cols);
@@ -34,8 +36,8 @@ public:
     }
 };
 
-// Offline range addition to an initially zero array.
-// TC O(n+q), SC O(n); each update touches two boundaries, then one prefix scan.
+/// Offline range addition to an initially zero array.
+/// TC O(n+q), SC O(n); each update touches two boundaries, then one prefix scan.
 inline std::vector<i64> range_additions(
     int n, const std::vector<std::tuple<int, int, i64>>& updates) {
     assert(n >= 0);
@@ -50,7 +52,7 @@ inline std::vector<i64> range_additions(
     return result;
 }
 
-// Ranks preserve ordering, not distances. TC O(n log n), SC O(n) for sorted copy.
+/// Ranks preserve ordering, not distances. TC O(n log n), SC O(n) for sorted copy.
 inline std::vector<int> compress(const std::vector<i64>& a) {
     auto values = a;
     std::sort(values.begin(), values.end());
@@ -62,9 +64,9 @@ inline std::vector<int> compress(const std::vector<i64>& a) {
     return rank;
 }
 
-// First true in [lo,hi); returns original hi when none is true.
-// Predicate MUST be false...false,true...true. Require hi-lo to fit i64.
-// TC O(log(hi-lo+1) * predicate_cost), SC O(1) + predicate workspace.
+/// First true in [lo,hi); returns original hi when none is true.
+/// Predicate MUST be false...false,true...true. Require hi-lo to fit i64.
+/// TC O(log(hi-lo+1) * predicate_cost), SC O(1) + predicate workspace.
 template<class Predicate>
 i64 first_true(i64 lo, i64 hi, Predicate feasible) {
     assert(lo <= hi);
@@ -76,8 +78,8 @@ i64 first_true(i64 lo, i64 hi, Predicate feasible) {
     return lo;
 }
 
-// Two pointers on SORTED input; distinct indices, not necessarily distinct values.
-// TC O(n), SC O(1): each pointer moves at most n times. Pair sums must fit i64.
+/// Two pointers on SORTED input; distinct indices, not necessarily distinct values.
+/// TC O(n), SC O(1): each pointer moves at most n times. Pair sums must fit i64.
 inline std::optional<std::pair<int, int>> two_sum_sorted(const std::vector<i64>& a, i64 target) {
     int l = 0, r = static_cast<int>(a.size()) - 1;
     while (l < r) {
@@ -89,8 +91,8 @@ inline std::optional<std::pair<int, int>> two_sum_sorted(const std::vector<i64>&
     return std::nullopt;
 }
 
-// Minimum NONEMPTY length with sum >= target; elements must be nonnegative,
-// target > 0. Returns -1 if impossible. TC O(n), SC O(1).
+/// Minimum NONEMPTY length with sum >= target; elements must be nonnegative,
+/// target > 0. Returns -1 if impossible. TC O(n), SC O(1).
 inline int min_length_nonnegative(const std::vector<i64>& a, i64 target) {
     assert(target > 0);
     i64 sum = 0;
@@ -108,8 +110,8 @@ inline int min_length_nonnegative(const std::vector<i64>& a, i64 target) {
     return best > static_cast<int>(a.size()) ? -1 : best;
 }
 
-// Same problem WITH negative values allowed. TC O(n), SC O(n).
-// Monotone prefix sums replace the invalid ordinary sliding-window assumption.
+/// Same problem WITH negative values allowed. TC O(n), SC O(n).
+/// Monotone prefix sums replace the invalid ordinary sliding-window assumption.
 inline int shortest_subarray_at_least(const std::vector<i64>& a, i64 target) {
     auto p = prefix_sums(a);
     std::deque<int> q;
@@ -125,9 +127,9 @@ inline int shortest_subarray_at_least(const std::vector<i64>& a, i64 target) {
     return best > static_cast<int>(a.size()) ? -1 : best;
 }
 
-// Prefix-frequency counting works with negative numbers too.
-// std::map gives deterministic TC O(n log n), SC O(n).
-// unordered_map can give expected O(n), but adversarial hashing can be O(n^2).
+/// Prefix-frequency counting works with negative numbers too.
+/// std::map gives deterministic TC O(n log n), SC O(n).
+/// unordered_map can give expected O(n), but adversarial hashing can be O(n^2).
 inline i64 count_subarrays_sum(const std::vector<i64>& a, i64 target) {
     std::map<i64, i64> frequency{{0, 1}};
     i64 sum = 0, count = 0;
@@ -140,8 +142,8 @@ inline i64 count_subarrays_sum(const std::vector<i64>& a, i64 target) {
     return count;
 }
 
-// Kadane: maximum NONEMPTY subarray; empty input -> nullopt.
-// TC O(n), SC O(1). Unlike a zero-initialized answer, handles all-negative arrays.
+/// Kadane: maximum NONEMPTY subarray; empty input -> nullopt.
+/// TC O(n), SC O(1). Unlike a zero-initialized answer, handles all-negative arrays.
 inline std::optional<i64> max_subarray_sum(const std::vector<i64>& a) {
     if (a.empty()) return std::nullopt;
     i64 ending = a[0], best = a[0];
@@ -152,7 +154,7 @@ inline std::optional<i64> max_subarray_sum(const std::vector<i64>& a) {
     return best;
 }
 
-// Next STRICTLY greater element's index, or n. TC O(n), SC O(n) stack.
+/// Next STRICTLY greater element's index, or n. TC O(n), SC O(n) stack.
 inline std::vector<int> next_greater(const std::vector<i64>& a) {
     int n = static_cast<int>(a.size());
     std::vector<int> result(n, n), st;
@@ -166,7 +168,7 @@ inline std::vector<int> next_greater(const std::vector<i64>& a) {
     return result;
 }
 
-// Window maxima: 1 <= k <= n. TC O(n), SC O(k), excluding O(n-k+1) output.
+/// Window maxima: 1 <= k <= n. TC O(n), SC O(k), excluding O(n-k+1) output.
 inline std::vector<i64> sliding_max(const std::vector<i64>& a, int k) {
     assert(k >= 1 && k <= static_cast<int>(a.size()));
     std::deque<int> q;
@@ -180,9 +182,9 @@ inline std::vector<i64> sliding_max(const std::vector<i64>& a, int k) {
     return result;
 }
 
-// Largest histogram rectangle; heights >= 0. TC O(n), SC O(n).
-// Note 2: Each index is pushed/popped once. Popping discovers its first smaller
-// right boundary; the new stack top is its smaller left boundary.
+/// Largest histogram rectangle; heights >= 0. TC O(n), SC O(n).
+/// Note 2: Each index is pushed/popped once. Popping discovers its first smaller
+/// right boundary; the new stack top is its smaller left boundary.
 inline i64 largest_rectangle(const std::vector<i64>& heights) {
     std::vector<int> st;
     i64 best = 0;
@@ -201,8 +203,8 @@ inline i64 largest_rectangle(const std::vector<i64>& heights) {
     return best;
 }
 
-// Closed intervals: touching endpoints merge. TC O(n log n), SC O(n) input copy
-// + O(log n) sorting stack, excluding output.
+/// Closed intervals: touching endpoints merge. TC O(n log n), SC O(n) input copy
+/// + O(log n) sorting stack, excluding output.
 inline std::vector<std::pair<i64, i64>> merge_intervals(std::vector<std::pair<i64, i64>> a) {
     for (auto [l, r] : a) assert(l <= r);
     std::sort(a.begin(), a.end());
@@ -214,9 +216,9 @@ inline std::vector<std::pair<i64, i64>> merge_intervals(std::vector<std::pair<i6
     return result;
 }
 
-// Maximum number of compatible [start,end) jobs; require start < end.
-// Greedy earliest finish leaves maximum room for future jobs.
-// TC O(n log n), SC O(n) by-value input copy + O(log n) sorting stack.
+/// Maximum number of compatible [start,end) jobs; require start < end.
+/// Greedy earliest finish leaves maximum room for future jobs.
+/// TC O(n log n), SC O(n) by-value input copy + O(log n) sorting stack.
 inline int max_nonoverlapping(std::vector<std::pair<i64, i64>> jobs) {
     for (auto [l, r] : jobs) assert(l < r);
     std::sort(jobs.begin(), jobs.end(), [](auto a, auto b) { return a.second < b.second; });
@@ -228,8 +230,8 @@ inline int max_nonoverlapping(std::vector<std::pair<i64, i64>> jobs) {
     }
     return answer;
 }
-// Unique sorted triples with sum=target. TC O(n^2), SC O(n) sorted input copy,
-// excluding up to O(n^2) output. Triple sums must fit i64.
+/// Unique sorted triples with sum=target. TC O(n^2), SC O(n) sorted input copy,
+/// excluding up to O(n^2) output. Triple sums must fit i64.
 inline std::vector<std::array<i64, 3>> three_sum(std::vector<i64> a, i64 target = 0) {
     std::sort(a.begin(), a.end());
     std::vector<std::array<i64, 3>> result;
@@ -252,8 +254,8 @@ inline std::vector<std::array<i64, 3>> three_sum(std::vector<i64> a, i64 target 
     return result;
 }
 
-// Rotated nondecreasing array; returns ANY matching index or -1.
-// TC O(log n) with distinct values, worst O(n) with duplicates; SC O(1).
+/// Rotated nondecreasing array; returns ANY matching index or -1.
+/// TC O(log n) with distinct values, worst O(n) with duplicates; SC O(1).
 inline int search_rotated(const std::vector<i64>& a, i64 target) {
     int l = 0, r = static_cast<int>(a.size()) - 1;
     while (l <= r) {
@@ -271,9 +273,9 @@ inline int search_rotated(const std::vector<i64>& a, i64 target) {
     return -1;
 }
 
-// 1-based kth value in the union of TWO sorted arrays; duplicates retained.
-// Require 1<=k<=n+m, n+m fits int. TC O(log(min(n,m)+1)), SC O(1).
-// Median: select middle one/two values; use mean_of_two for the even case.
+/// 1-based kth value in the union of TWO sorted arrays; duplicates retained.
+/// Require 1<=k<=n+m, n+m fits int. TC O(log(min(n,m)+1)), SC O(1).
+/// Median: select middle one/two values; use mean_of_two for the even case.
 inline i64 kth_two_sorted(const std::vector<i64>& a, const std::vector<i64>& b, int k) {
     if (a.size() > b.size()) return kth_two_sorted(b, a, k);
     int n = static_cast<int>(a.size()), m = static_cast<int>(b.size());
@@ -292,8 +294,8 @@ inline i64 kth_two_sorted(const std::vector<i64>& a, const std::vector<i64>& b, 
     return std::max(a[lo - 1], b[j - 1]);
 }
 
-// Split a NONEMPTY nonnegative array into exactly groups nonempty contiguous
-// pieces, minimizing the largest piece sum. TC O(n log(sum(a)+1)), SC O(1).
+/// Split a NONEMPTY nonnegative array into exactly groups nonempty contiguous
+/// pieces, minimizing the largest piece sum. TC O(n log(sum(a)+1)), SC O(1).
 inline i64 split_min_largest_sum(const std::vector<i64>& a, int groups) {
     assert(!a.empty() && 1 <= groups && groups <= static_cast<int>(a.size()));
     i64 total = 0, lower = 0;
@@ -311,8 +313,8 @@ inline i64 split_min_largest_sum(const std::vector<i64>& a, int groups) {
     });
 }
 
-// Maximum product of a NONEMPTY subarray; empty -> nullopt.
-// TC O(n), SC O(1). All intermediate products must fit i64.
+/// Maximum product of a NONEMPTY subarray; empty -> nullopt.
+/// TC O(n), SC O(1). All intermediate products must fit i64.
 inline std::optional<i64> max_product_subarray(const std::vector<i64>& a) {
     if (a.empty()) return std::nullopt;
     i64 low = a[0], high = a[0], answer = a[0];
@@ -326,8 +328,8 @@ inline std::optional<i64> max_product_subarray(const std::vector<i64>& a) {
     return answer;
 }
 
-// No division; zeros supported. TC O(n), SC O(1) excluding O(n) output.
-// Every prefix/suffix/product computed must fit i64 (not just final answers).
+/// No division; zeros supported. TC O(n), SC O(1) excluding O(n) output.
+/// Every prefix/suffix/product computed must fit i64 (not just final answers).
 inline std::vector<i64> product_except_self(const std::vector<i64>& a) {
     std::vector<i64> result(a.size(), 1);
     i64 prefix = 1, suffix = 1;
@@ -340,7 +342,7 @@ inline std::vector<i64> product_except_self(const std::vector<i64>& a) {
     return result;
 }
 
-// Trapping rain water, nonnegative heights. TC O(n), SC O(1).
+/// Trapping rain water, nonnegative heights. TC O(n), SC O(1).
 inline i64 trapped_water(const std::vector<i64>& height) {
     int l = 0, r = static_cast<int>(height.size()) - 1;
     i64 left_max = 0, right_max = 0, water = 0;
@@ -359,8 +361,8 @@ inline i64 trapped_water(const std::vector<i64>& height) {
     return water;
 }
 
-// Sum of all subarray minimums, modulo a positive int modulus; negatives allowed.
-// TC O(n), SC O(n). Each index is pushed and popped exactly once.
+/// Sum of all subarray minimums, modulo a positive int modulus; negatives allowed.
+/// TC O(n), SC O(n). Each index is pushed and popped exactly once.
 inline i64 sum_subarray_minimums(const std::vector<i64>& a, int mod = MOD) {
     assert(mod > 0);
     int n = static_cast<int>(a.size());
@@ -381,8 +383,8 @@ inline i64 sum_subarray_minimums(const std::vector<i64>& a, int mod = MOD) {
     return answer;
 }
 
-// Rectangular '0'/'1' matrix. Each row becomes histogram heights.
-// TC O(R*(C+1)), SC O(C), excluding input; handles empty/zero-width matrices.
+/// Rectangular '0'/'1' matrix. Each row becomes histogram heights.
+/// TC O(R*(C+1)), SC O(C), excluding input; handles empty/zero-width matrices.
 inline i64 maximal_rectangle(const std::vector<std::string>& matrix) {
     int cols = matrix.empty() ? 0 : static_cast<int>(matrix[0].size());
     std::vector<i64> height(cols);
@@ -398,8 +400,8 @@ inline i64 maximal_rectangle(const std::vector<std::string>& matrix) {
     return answer;
 }
 
-// Merge k individually sorted arrays with N total items.
-// TC O(k + N log(k+1)), SC O(k) heap excluding O(N) output.
+/// Merge k individually sorted arrays with N total items.
+/// TC O(k + N log(k+1)), SC O(k) heap excluding O(N) output.
 inline std::vector<i64> merge_k_sorted(const std::vector<std::vector<i64>>& arrays) {
     using Entry = std::tuple<i64, int, int>;
     std::vector<Entry> initial;
@@ -417,8 +419,8 @@ inline std::vector<i64> merge_k_sorted(const std::vector<std::vector<i64>>& arra
     return result;
 }
 
-// Minimum rooms for nonempty half-open [start,end) meetings.
-// TC O(n log n), SC O(n). Ends sort BEFORE starts at equal timestamps.
+/// Minimum rooms for nonempty half-open [start,end) meetings.
+/// TC O(n log n), SC O(n). Ends sort BEFORE starts at equal timestamps.
 inline int meeting_rooms(const std::vector<std::pair<i64, i64>>& intervals) {
     std::vector<std::pair<i64, int>> events;
     for (auto [l, r] : intervals) {
@@ -433,9 +435,9 @@ inline int meeting_rooms(const std::vector<std::pair<i64, i64>>& intervals) {
     }
     return answer;
 }
-// Jump Game I/II: minimum forward jumps to the last index; -1 if unreachable.
-// Empty/singleton input -> 0. Nonnegative jump lengths. TC O(n), SC O(1).
-// Each greedy layer is all indices reachable in the current number of jumps.
+/// Jump Game I/II: minimum forward jumps to the last index; -1 if unreachable.
+/// Empty/singleton input -> 0. Nonnegative jump lengths. TC O(n), SC O(1).
+/// Each greedy layer is all indices reachable in the current number of jumps.
 inline int min_jumps(const std::vector<int>& maximum_jump) {
     int n = static_cast<int>(maximum_jump.size());
     if (n <= 1) return 0;
@@ -452,9 +454,9 @@ inline int min_jumps(const std::vector<int>& maximum_jump) {
     return -1;
 }
 
-// First missing POSITIVE integer, mutates input. TC O(n), SC O(1).
-// Put each in-range x at index x-1; each swap permanently places a value.
-// Duplicate values must stop swapping, otherwise the loop can be infinite.
+/// First missing POSITIVE integer, mutates input. TC O(n), SC O(1).
+/// Put each in-range x at index x-1; each swap permanently places a value.
+/// Duplicate values must stop swapping, otherwise the loop can be infinite.
 inline int first_missing_positive(std::vector<int>& a) {
     int n = static_cast<int>(a.size());
     assert(n < std::numeric_limits<int>::max());
@@ -465,8 +467,8 @@ inline int first_missing_positive(std::vector<int>& a) {
     return n + 1;
 }
 
-// Dutch national flag; all input values are 0/1/2. Mutates in place.
-// TC O(n), SC O(1). [0,low)=0, [low,mid)=1, [high,n)=2.
+/// Dutch national flag; all input values are 0/1/2. Mutates in place.
+/// TC O(n), SC O(1). [0,low)=0, [low,mid)=1, [high,n)=2.
 inline void sort_three_values(std::vector<int>& a) {
     int low = 0, mid = 0, high = static_cast<int>(a.size());
     while (mid < high) {
@@ -477,9 +479,9 @@ inline void sort_three_values(std::vector<int>& a) {
     }
 }
 
-// Boyer-Moore voting with a verification pass. Returns a value occurring
-// STRICTLY more than n/2 times, or nullopt (including empty input).
-// TC O(n), SC O(1); cancellation finds only a candidate, not proof of majority.
+/// Boyer-Moore voting with a verification pass. Returns a value occurring
+/// STRICTLY more than n/2 times, or nullopt (including empty input).
+/// TC O(n), SC O(1); cancellation finds only a candidate, not proof of majority.
 inline std::optional<i64> majority_element(const std::vector<i64>& a) {
     i64 candidate = 0;
     int balance = 0;

@@ -22,6 +22,7 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include "cp/arrays.hpp"
 
 using namespace std;
 using i64 = long long;
@@ -40,6 +41,8 @@ void debug(const Args&... args) {
 #define debug(...) ((void)0)
 #endif
 
+/// @brief Solve one Codeforces test case; replace this empty starter body.
+/// Read input and print the answer here. TC/SC depend on your implementation.
 void solve() {
     // Read ONE test case, solve, print the answer.
     // Example: int n; cin >> n; vector<i64> a(n); for (auto& x : a) cin >> x;

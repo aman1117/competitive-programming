@@ -45,6 +45,36 @@ Without the profile shortcut, call the script directly:
 & "$HOME\competitive-programming\scripts\run-cpp.ps1" .\solution.cpp -InputFile .\input.txt
 ```
 
+## C++ hover explanations in VS Code
+
+The **clangd** extension (`llvm-vs-code-extensions.vscode-clangd`) is installed in VS Code Insiders and recommended by this workspace. It uses the existing LLVM-MinGW language server/compiler; no second C++ language server is needed.
+
+Open **this project folder**, not just an isolated `.cpp` file, so its compiler/include settings are loaded:
+
+```powershell
+code "$HOME\competitive-programming"
+```
+
+Open `examples\hover_demo.cpp` and hover over `Fenwick`, `add`, `sum`, `count_inversions`, or `unite`. The popups show signatures and the declaration documentation: purpose, assumptions, return behavior, and TC/SC. On first open, allow a few seconds for header indexing; an early hover may initially show only the signature. You can also request a hover with **Ctrl+K, then Ctrl+I**. If the folder was already open during installation, run **Developer: Reload Window** from the command palette.
+
+Library declaration comments use Doxygen-compatible `///` syntax. For your own functions, put documentation immediately **above the declaration**, not only inside its body:
+
+```cpp
+/// @brief Return the square of x.
+/// @param x Input whose square fits in long long.
+/// @return x multiplied by itself.
+/// @note TC O(1); SC O(1).
+long long square(long long x) {
+    return x * x;
+}
+```
+
+This is documentation-aware hover help, not automatic AI explanation of arbitrary undocumented code. An undocumented function may show only its signature/type information; standard-library descriptions depend on the installed headers.
+
+Configuration is kept in `.vscode\settings.json`, `.clangd`, and `compile_flags.txt`. The flags specify C++17 and the local `include` directory. Compiler/server paths are pinned to the LLVM installation on this machine; after moving the project or changing the toolchain, update `clangd.path`, the trusted `--query-driver` path, and `.clangd`'s `CompileFlags.Compiler`.
+
+clangd activates only in trusted workspaces. Trust this folder only if you trust its contents. If hover help is missing, check the **clangd** output channel or run **clangd: Restart language server**. Avoid running another C++ IntelliSense provider alongside clangd in this workspace, which can produce duplicate/conflicting results.
+
 ## Workspace
 
 ```text
@@ -56,10 +86,14 @@ competitive-programming\
   docs\README.md           Algorithm handbook and chapter index
   docs\<topic>\README.md   Worked explanations, examples, invariants, and TC/SC
   examples\                Runnable Fenwick example and sample input/output
+  examples\hover_demo.cpp  Small program for trying documented function hovers
   practice\                Your solutions
   tests\                   Deterministic and seeded differential tests
   scripts\run-cpp.ps1       Compile-and-run implementation for cprun
   scripts\test.ps1          Header, starter, and algorithm checks
+  .vscode\                 clangd extension recommendation and editor settings
+  .clangd                  Compiler selection for the language server
+  compile_flags.txt        C++17/include flags shared by editor analysis
   .build\                  Ignored temporary executables
 ```
 

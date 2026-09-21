@@ -2,14 +2,16 @@
 #include "graphs.hpp"
 
 namespace cp {
-// Connected, nonempty, undirected tree; no self-loops/parallel edges.
+/// @brief Precompute ancestors, LCA, and contiguous subtree intervals.
+/// Connected, nonempty, undirected tree; no self-loops/parallel edges.
+/// Build TC/space O(n log n); ancestor/LCA/distance queries O(log n).
 class BinaryLifting {
     int n, levels = 1;
     std::vector<std::vector<int>> up;
 public:
     std::vector<int> parent, depth, tin, tout, order, subtree_size;
-    // TC/space O(n log n), including table and iterative traversal.
-    // A subtree is exactly [tin[v],tout[v]) in preorder.
+    /// TC/space O(n log n), including table and iterative traversal.
+    /// A subtree is exactly [tin[v],tout[v]) in preorder.
     explicit BinaryLifting(const Graph& tree, int root = 0)
         : n(static_cast<int>(tree.size())), parent(n, -1), depth(n),
           tin(n), tout(n), subtree_size(n, 1) {
@@ -37,19 +39,21 @@ public:
         for (int k = 1; k < levels; ++k)
             for (int v = 0; v < n; ++v) up[k][v] = up[k - 1][up[k - 1][v]];
     }
-    // TC O(log n), SC O(1). Returns -1 above root, not root forever.
+    /// TC O(log n), SC O(1). Returns -1 above root, not root forever.
     int kth_ancestor(int v, int k) const {
         assert(0 <= v && v < n && k >= 0);
         if (k > depth[v]) return -1;
         for (int b = 0; b < levels; ++b) if ((k >> b) & 1) v = up[b][v];
         return v;
     }
-    // TC/SC O(1).
+    /// @brief Test whether a is an ancestor of b, including a == b.
+    /// TC/SC O(1), using the half-open preorder subtree interval.
     bool is_ancestor(int a, int b) const {
         assert(0 <= a && a < n && 0 <= b && b < n);
         return tin[a] <= tin[b] && tin[b] < tout[a];
     }
-    // TC O(log n), SC O(1).
+    /// @brief Return the lowest common ancestor of vertices a and b.
+    /// TC O(log n), SC O(1).
     int lca(int a, int b) const {
         if (is_ancestor(a, b)) return a;
         if (is_ancestor(b, a)) return b;
@@ -57,12 +61,12 @@ public:
             if (!is_ancestor(up[k][a], b)) a = up[k][a];
         return parent[a];
     }
-    // Unweighted edge distance. TC O(log n), SC O(1).
+    /// Unweighted edge distance. TC O(log n), SC O(1).
     int distance(int a, int b) const { return depth[a] + depth[b] - 2 * depth[lca(a, b)]; }
 };
 
 struct Diameter { int from, to, length; std::vector<int> path; };
-// Unweighted nonempty tree only, not a general graph. TC/SC O(n).
+/// Unweighted nonempty tree only, not a general graph. TC/SC O(n).
 inline Diameter tree_diameter(const Graph& tree) {
     assert(!tree.empty());
     auto first = bfs(tree, {0});
@@ -72,8 +76,8 @@ inline Diameter tree_diameter(const Graph& tree) {
     return {a, b, second.distance[b], restore_path(second.parent, a, b)};
 }
 
-// Sum of distances from EACH vertex of a nonempty unweighted tree.
-// TC/SC O(n), using iterative parent-order traversal and rerooting.
+/// Sum of distances from EACH vertex of a nonempty unweighted tree.
+/// TC/SC O(n), using iterative parent-order traversal and rerooting.
 inline std::vector<i64> tree_distance_sums(const Graph& tree) {
     int n = static_cast<int>(tree.size());
     assert(n > 0);
@@ -93,8 +97,8 @@ inline std::vector<i64> tree_distance_sums(const Graph& tree) {
     return answer;
 }
 
-// Maximum-weight independent set of a nonempty tree; choosing nothing allowed.
-// TC/SC O(n). dp[v][1] takes v, forcing all children to be skipped.
+/// Maximum-weight independent set of a nonempty tree; choosing nothing allowed.
+/// TC/SC O(n). dp[v][1] takes v, forcing all children to be skipped.
 inline i64 tree_independent_set(const Graph& tree, const std::vector<i64>& weight) {
     int n = static_cast<int>(tree.size());
     assert(n > 0 && weight.size() == tree.size());

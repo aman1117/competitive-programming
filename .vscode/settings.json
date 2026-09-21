@@ -1,0 +1,13 @@
+{
+    "clangd.path": "C:\\Users\\amansha\\AppData\\Local\\Microsoft\\WinGet\\Packages\\MartinStorsjo.LLVM-MinGW.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\\llvm-mingw-20251216-ucrt-aarch64\\bin\\clangd.exe",
+    "clangd.arguments": [
+        "--enable-config",
+        "--background-index",
+        "--query-driver=C:\\Users\\amansha\\AppData\\Local\\Microsoft\\WinGet\\Packages\\MartinStorsjo.LLVM-MinGW.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\\llvm-mingw-20251216-ucrt-aarch64\\bin\\clang++.exe"
+    ],
+    "clangd.enable": true,
+    "clangd.enableHover": true,
+    "files.associations": {
+        "*.hpp": "cpp"
+    }
+}

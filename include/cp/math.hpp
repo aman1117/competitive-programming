@@ -2,16 +2,16 @@
 #include "common.hpp"
 
 namespace cp {
-// Modulus throughout this file is a positive signed int; products of normalized
-// residues therefore fit i64. This is NOT a 64-bit-modulus multiplication library.
-// Normalize negative residues: TC/SC O(1).
+/// Modulus throughout this file is a positive signed int; products of normalized
+/// residues therefore fit i64. This is NOT a 64-bit-modulus multiplication library.
+/// Normalize negative residues: TC/SC O(1).
 inline i64 normalize(i64 value, int mod) {
     assert(mod >= 1);
     value %= mod;
     return value < 0 ? value + mod : value;
 }
 
-// Binary exponentiation: TC O(log(exponent+1)), SC O(1).
+/// Binary exponentiation: TC O(log(exponent+1)), SC O(1).
 inline i64 mod_pow(i64 base, i64 exponent, int mod = MOD) {
     assert(exponent >= 0 && mod >= 1);
     base = normalize(base, mod);
@@ -25,8 +25,8 @@ inline i64 mod_pow(i64 base, i64 exponent, int mod = MOD) {
 }
 
 struct Bezout { i64 gcd, x, y; };
-// a,b >= 0, not both 0. Returns a*x+b*y=gcd(a,b).
-// TC O(log(min(a,b)+1)), SC O(1); intermediate coefficients must fit i64.
+/// a,b >= 0, not both 0. Returns a*x+b*y=gcd(a,b).
+/// TC O(log(min(a,b)+1)), SC O(1); intermediate coefficients must fit i64.
 inline Bezout extended_gcd(i64 a, i64 b) {
     assert(a >= 0 && b >= 0 && (a || b));
     i64 x0 = 1, y0 = 0, x1 = 0, y1 = 1;
@@ -39,8 +39,8 @@ inline Bezout extended_gcd(i64 a, i64 b) {
     return {a, x0, y0};
 }
 
-// Works for composite moduli too. No inverse when gcd(a,mod) != 1.
-// Require mod >= 2. TC O(log mod), SC O(1).
+/// Works for composite moduli too. No inverse when gcd(a,mod) != 1.
+/// Require mod >= 2. TC O(log mod), SC O(1).
 inline std::optional<i64> mod_inverse(i64 a, int mod = MOD) {
     assert(mod >= 2);
     auto result = extended_gcd(normalize(a, mod), mod);
@@ -48,12 +48,14 @@ inline std::optional<i64> mod_inverse(i64 a, int mod = MOD) {
     return normalize(result.x, mod);
 }
 
+/// @brief Precomputed binomial coefficients modulo a caller-supplied prime.
+/// Requires limit < prime. Build TC O(limit+log prime), space O(limit); query O(1).
 class Combinations {
     int mod;
     std::vector<i64> factorial, inverse_factorial;
 public:
-    // REQUIRES a PRIME modulus and 0 <= limit < prime; primality is caller's
-    // responsibility. Build TC O(limit+log prime), space O(limit).
+    /// REQUIRES a PRIME modulus and 0 <= limit < prime; primality is caller's
+    /// responsibility. Build TC O(limit+log prime), space O(limit).
     Combinations(int limit, int prime = MOD) : mod(prime) {
         assert(prime >= 2 && 0 <= limit && limit < prime);
         factorial.assign(limit + 1, 1);
@@ -62,7 +64,7 @@ public:
         inverse_factorial[limit] = mod_pow(factorial[limit], mod - 2, mod);
         for (int i = limit; i > 0; --i) inverse_factorial[i - 1] = inverse_factorial[i] * i % mod;
     }
-    // TC/SC O(1); outside 0<=k<=n gives 0. n must be precomputed.
+    /// TC/SC O(1); outside 0<=k<=n gives 0. n must be precomputed.
     i64 choose(int n, int k) const {
         assert(0 <= n && n < static_cast<int>(factorial.size()));
         if (k < 0 || k > n) return 0;
@@ -70,10 +72,12 @@ public:
     }
 };
 
+/// @brief Linear-time smallest-prime-factor sieve for bounded factorization.
+/// Build TC/space O(limit); factorize(x) takes O(log x) divisions.
 class LinearSieve {
 public:
     std::vector<int> smallest_prime, primes;
-    // TC/space O(n). Each composite is generated once by its smallest prime.
+    /// TC/space O(n). Each composite is generated once by its smallest prime.
     explicit LinearSieve(int n) : smallest_prime(n + 1) {
         for (int x = 2; x <= n; ++x) {
             if (!smallest_prime[x]) { smallest_prime[x] = x; primes.push_back(x); }
@@ -83,7 +87,7 @@ public:
             }
         }
     }
-    // 1 <= x <= sieve limit. TC O(log x), SC O(1) excluding output.
+    /// 1 <= x <= sieve limit. TC O(log x), SC O(1) excluding output.
     std::vector<std::pair<int, int>> factorize(int x) const {
         assert(1 <= x && x < static_cast<int>(smallest_prime.size()));
         std::vector<std::pair<int, int>> answer;
@@ -96,8 +100,8 @@ public:
     }
 };
 
-// Trial division, x >= 1. TC O(sqrt(x)), SC O(1) excluding output.
-// Use the sieve for many small queries; this is not suitable for huge primes.
+/// Trial division, x >= 1. TC O(sqrt(x)), SC O(1) excluding output.
+/// Use the sieve for many small queries; this is not suitable for huge primes.
 inline std::vector<std::pair<i64, int>> trial_factorize(i64 x) {
     assert(x >= 1);
     std::vector<std::pair<i64, int>> answer;
@@ -110,8 +114,8 @@ inline std::vector<std::pair<i64, int>> trial_factorize(i64 x) {
     return answer;
 }
 
-// Euler phi(n), n >= 1: number of integers in [1,n] coprime to n.
-// TC O(sqrt(n)), SC O(log n) factor list.
+/// Euler phi(n), n >= 1: number of integers in [1,n] coprime to n.
+/// TC O(sqrt(n)), SC O(log n) factor list.
 inline i64 totient(i64 n) {
     assert(n >= 1);
     i64 result = n;
@@ -122,8 +126,8 @@ inline i64 totient(i64 n) {
     return result;
 }
 
-// Sorted divisors of positive n. TC O(sqrt(n)), SC O(d) temporary upper half,
-// plus O(d) output, where d is number of divisors. No sorting needed.
+/// Sorted divisors of positive n. TC O(sqrt(n)), SC O(d) temporary upper half,
+/// plus O(d) output, where d is number of divisors. No sorting needed.
 inline std::vector<i64> divisors(i64 n) {
     assert(n > 0);
     std::vector<i64> low, high;
@@ -135,8 +139,8 @@ inline std::vector<i64> divisors(i64 n) {
     return low;
 }
 
-// Safe nonnegative LCM: nullopt if it exceeds i64.
-// TC O(log(min(a,b)+1)), SC O(1).
+/// Safe nonnegative LCM: nullopt if it exceeds i64.
+/// TC O(log(min(a,b)+1)), SC O(1).
 inline std::optional<i64> checked_lcm(i64 a, i64 b) {
     assert(a >= 0 && b >= 0);
     if (!a || !b) return 0;
@@ -145,10 +149,10 @@ inline std::optional<i64> checked_lcm(i64 a, i64 b) {
     return a * b;
 }
 
-// Generalized CRT for TWO congruences x=a (mod m), x=b (mod n).
-// Moduli are positive int, so their LCM and intermediate products fit i64.
-// Result = {smallest nonnegative solution, lcm}; nullopt if inconsistent.
-// TC O(log(min(m,n)+1)), SC O(1).
+/// Generalized CRT for TWO congruences x=a (mod m), x=b (mod n).
+/// Moduli are positive int, so their LCM and intermediate products fit i64.
+/// Result = {smallest nonnegative solution, lcm}; nullopt if inconsistent.
+/// TC O(log(min(m,n)+1)), SC O(1).
 inline std::optional<std::pair<i64, i64>> crt_pair(i64 a, int m, i64 b, int n) {
     assert(m > 0 && n > 0);
     a = normalize(a, m); b = normalize(b, n);
@@ -164,8 +168,8 @@ inline std::optional<std::pair<i64, i64>> crt_pair(i64 a, int m, i64 b, int n) {
 }
 
 using Matrix = std::vector<std::vector<i64>>;
-// Square matrices, same dimension, entries already in [0,mod).
-// TC O(d^3), SC O(1) excluding O(d^2) result.
+/// Square matrices, same dimension, entries already in [0,mod).
+/// TC O(d^3), SC O(1) excluding O(d^2) result.
 inline Matrix matrix_multiply(const Matrix& a, const Matrix& b, int mod = MOD) {
     assert(mod >= 1 && a.size() == b.size());
     int n = static_cast<int>(a.size());
@@ -182,8 +186,8 @@ inline Matrix matrix_multiply(const Matrix& a, const Matrix& b, int mod = MOD) {
     return c;
 }
 
-// Matrix exponentiation for linear recurrences. TC O(d^3 log(exponent+1)),
-// SC O(d^2) including by-value base and intermediate matrices.
+/// Matrix exponentiation for linear recurrences. TC O(d^3 log(exponent+1)),
+/// SC O(d^2) including by-value base and intermediate matrices.
 inline Matrix matrix_power(Matrix base, i64 exponent, int mod = MOD) {
     assert(exponent >= 0 && mod >= 1);
     int n = static_cast<int>(base.size());

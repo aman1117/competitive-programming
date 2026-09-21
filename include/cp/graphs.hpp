@@ -8,9 +8,9 @@ using WeightedGraph = std::vector<std::vector<WeightedEdge>>;
 struct Edge { int from, to; i64 weight; };
 struct BFSResult { std::vector<int> distance, parent; };
 
-// Single/multi-source BFS, unweighted graph; unreachable distance = -1.
-// TC O(V+E+S), S=source-list length (duplicates allowed); SC O(V) queue,
-// excluding O(V) output. For one source, the usual bound is O(V+E).
+/// Single/multi-source BFS, unweighted graph; unreachable distance = -1.
+/// TC O(V+E+S), S=source-list length (duplicates allowed); SC O(V) queue,
+/// excluding O(V) output. For one source, the usual bound is O(V+E).
 inline BFSResult bfs(const Graph& g, const std::vector<int>& sources) {
     int n = static_cast<int>(g.size());
     BFSResult result{std::vector<int>(n, -1), std::vector<int>(n, -1)};
@@ -33,9 +33,9 @@ inline BFSResult bfs(const Graph& g, const std::vector<int>& sources) {
     return result;
 }
 
-// Recover path from a BFS/Dijkstra predecessor array; empty if target not rooted
-// at source. Parent array must be an acyclic predecessor forest.
-// TC O(predecessor chain length), SC O(1) excluding output.
+/// Recover path from a BFS/Dijkstra predecessor array; empty if target not rooted
+/// at source. Parent array must be an acyclic predecessor forest.
+/// TC O(predecessor chain length), SC O(1) excluding output.
 inline std::vector<int> restore_path(const std::vector<int>& parent, int source, int target) {
     assert(source >= 0 && source < static_cast<int>(parent.size()));
     assert(target >= 0 && target < static_cast<int>(parent.size()));
@@ -56,8 +56,8 @@ inline std::vector<int> restore_path(const std::vector<int>& parent, int source,
     return {};
 }
 
-// Recursive-equivalent DFS preorder in adjacency-list order, implemented with
-// explicit frames. TC O(V+E), SC O(V); safe for deep graphs.
+/// Recursive-equivalent DFS preorder in adjacency-list order, implemented with
+/// explicit frames. TC O(V+E), SC O(V); safe for deep graphs.
 inline std::vector<int> dfs_order(const Graph& g, int source) {
     assert(source >= 0 && source < static_cast<int>(g.size()));
     std::vector<char> seen(g.size());
@@ -74,8 +74,8 @@ inline std::vector<int> dfs_order(const Graph& g, int source) {
     return order;
 }
 
-// Undirected graph (including disconnected components), nullopt for odd cycle.
-// TC O(V+E), SC O(V) queue; returned colors are 0 or 1.
+/// Undirected graph (including disconnected components), nullopt for odd cycle.
+/// TC O(V+E), SC O(V) queue; returned colors are 0 or 1.
 inline std::optional<std::vector<int>> bipartite_coloring(const Graph& g) {
     int n = static_cast<int>(g.size());
     std::vector<int> color(n, -1);
@@ -93,8 +93,8 @@ inline std::optional<std::vector<int>> bipartite_coloring(const Graph& g) {
     return color;
 }
 
-// Kahn's topological sort of a directed graph; nullopt means a cycle exists.
-// TC O(V+E), SC O(V). Each edge decreases indegree exactly once.
+/// Kahn's topological sort of a directed graph; nullopt means a cycle exists.
+/// TC O(V+E), SC O(V). Each edge decreases indegree exactly once.
 inline std::optional<std::vector<int>> topological_sort(const Graph& g) {
     std::vector<int> indegree(g.size()), order;
     for (const auto& row : g) for (int u : row) ++indegree[u];
@@ -109,9 +109,9 @@ inline std::optional<std::vector<int>> topological_sort(const Graph& g) {
 }
 
 struct ShortestPaths { std::vector<i64> distance; std::vector<int> parent; };
-// NONNEGATIVE edge weights only. Unreachable = INF.
-// Lazy binary heap: TC O(V + E log(E+1)), SC O(V+E), not O(V) heap space.
-// On simple graphs, this is commonly written O((V+E) log V).
+/// NONNEGATIVE edge weights only. Unreachable = INF.
+/// Lazy binary heap: TC O(V + E log(E+1)), SC O(V+E), not O(V) heap space.
+/// On simple graphs, this is commonly written O((V+E) log V).
 inline ShortestPaths dijkstra(const WeightedGraph& g, int source) {
     int n = static_cast<int>(g.size());
     assert(0 <= source && source < n);
@@ -136,7 +136,7 @@ inline ShortestPaths dijkstra(const WeightedGraph& g, int source) {
     return result;
 }
 
-// Edge weights exactly 0 or 1. TC O(V+E), SC O(V+E) for lazy deque entries.
+/// Edge weights exactly 0 or 1. TC O(V+E), SC O(V+E) for lazy deque entries.
 inline std::vector<i64> zero_one_bfs(const WeightedGraph& g, int source) {
     assert(0 <= source && source < static_cast<int>(g.size()));
     std::vector<i64> distance(g.size(), INF);
@@ -162,9 +162,9 @@ struct BellmanFordResult {
     // true means no finite shortest distance: reachable from a reachable negative cycle.
     std::vector<char> negative_infinite;
 };
-// Directed edge list; duplicate edges allowed. TC O(VE+V+E), SC O(V+E).
-// Arithmetic contract: even repeated relaxations must stay inside (-INF,INF).
-// A sufficient conservative bound is (V*E+1)*max_abs_weight < INF.
+/// Directed edge list; duplicate edges allowed. TC O(VE+V+E), SC O(V+E).
+/// Arithmetic contract: even repeated relaxations must stay inside (-INF,INF).
+/// A sufficient conservative bound is (V*E+1)*max_abs_weight < INF.
 inline BellmanFordResult bellman_ford(int n, const std::vector<Edge>& edges, int source) {
     assert(0 <= source && source < n);
     BellmanFordResult result{std::vector<i64>(n, INF), std::vector<char>(n)};
@@ -197,9 +197,9 @@ inline BellmanFordResult bellman_ford(int n, const std::vector<Edge>& edges, int
     return result;
 }
 
-// All-pairs shortest paths. Initialize diagonal 0, absent edges INF, parallel
-// edges to minimum weight. REQUIRES no negative cycles; use Bellman-Ford if unsure.
-// TC O(V^3), SC O(V^2) by-value matrix workspace (also returned).
+/// All-pairs shortest paths. Initialize diagonal 0, absent edges INF, parallel
+/// edges to minimum weight. REQUIRES no negative cycles; use Bellman-Ford if unsure.
+/// TC O(V^3), SC O(V^2) by-value matrix workspace (also returned).
 inline std::vector<std::vector<i64>> floyd_warshall(std::vector<std::vector<i64>> d) {
     int n = static_cast<int>(d.size());
     for (const auto& row : d) assert(static_cast<int>(row.size()) == n);
@@ -211,9 +211,9 @@ inline std::vector<std::vector<i64>> floyd_warshall(std::vector<std::vector<i64>
 }
 
 struct MSTResult { i64 weight; std::vector<Edge> edges; int components; };
-// Undirected graph: supply each edge once. Disconnected -> minimum spanning
-// FOREST; result.components > 1 signals no spanning tree.
-// TC O(V+E log(E+1)), SC O(V+E) including by-value edge copy and DSU.
+/// Undirected graph: supply each edge once. Disconnected -> minimum spanning
+/// FOREST; result.components > 1 signals no spanning tree.
+/// TC O(V+E log(E+1)), SC O(V+E) including by-value edge copy and DSU.
 inline MSTResult kruskal(int n, std::vector<Edge> edges) {
     std::sort(edges.begin(), edges.end(), [](auto a, auto b) { return a.weight < b.weight; });
     DSU dsu(n);
@@ -225,10 +225,10 @@ inline MSTResult kruskal(int n, std::vector<Edge> edges) {
     result.components = dsu.components();
     return result;
 }
-// Shortest unweighted WALK visiting all vertices, any start/end, revisits allowed.
-// Directed or undirected graph; -1 if impossible; n<=1 -> 0.
-// State=(vertex,visited_mask), NOT just vertex. TC O((V+E)*2^V), SC O(V*2^V).
-// Intended for V<=15; V<=20 guard still permits very memory-heavy inputs.
+/// Shortest unweighted WALK visiting all vertices, any start/end, revisits allowed.
+/// Directed or undirected graph; -1 if impossible; n<=1 -> 0.
+/// State=(vertex,visited_mask), NOT just vertex. TC O((V+E)*2^V), SC O(V*2^V).
+/// Intended for V<=15; V<=20 guard still permits very memory-heavy inputs.
 inline int shortest_visit_all(const Graph& g) {
     int n = static_cast<int>(g.size());
     assert(n <= 20);

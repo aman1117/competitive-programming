@@ -15,8 +15,8 @@ using namespace std;
 
 class Solution {
 public:
-    // Compile-ready EXAMPLE, not a universal LeetCode signature.
-    // Sum n integers: TC O(n) for one scan, SC O(1) beyond the input.
+    /// Compile-ready EXAMPLE, not a universal LeetCode signature.
+    /// Sum n integers: TC O(n) for one scan, SC O(1) beyond the input.
     long long exampleSum(const vector<int>& nums) {
         return accumulate(nums.begin(), nums.end(), 0LL);
     }

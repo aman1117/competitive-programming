@@ -1,5 +1,7 @@
 #pragma once
 
+// Shared standard-library facilities are intentionally re-exported to templates.
+// IWYU pragma: begin_exports
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -23,6 +25,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+// IWYU pragma: end_exports
 
 namespace cp {
 using i64 = long long;
@@ -34,7 +37,9 @@ constexpr int MOD = 1'000'000'007;
 /// LLONG_MIN first can incorrectly cancel to zero when long double == double.
 /// Final results still have the platform's ordinary floating-point precision.
 inline long double mean_of_two(i64 a, i64 b) {
-    return static_cast<long double>(a / 2 + b / 2) + (a % 2 + b % 2) / 2.0L;
+    const i64 integer_part = a / 2 + b / 2;
+    const i64 remainders = a % 2 + b % 2;
+    return static_cast<long double>(integer_part) + remainders / 2.0L;
 }
 // Note 2: Indices are zero-based, ranges are [l,r), and sizes fit int.
 // TC = time complexity; SC = auxiliary space (including recursion), excluding

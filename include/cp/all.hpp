@@ -1,4 +1,7 @@
 #pragma once
+
+// Umbrella header: expose every toolkit module through one convenience include.
+// IWYU pragma: begin_exports
 #include "arrays.hpp"
 #include "connectivity.hpp"
 #include "data_structures.hpp"
@@ -13,3 +16,4 @@
 #include "search.hpp"
 #include "strings.hpp"
 #include "trees.hpp"
+// IWYU pragma: end_exports

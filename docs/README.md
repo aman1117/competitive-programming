@@ -10,6 +10,7 @@ The chapters are explanation-oriented: each algorithm or closely related family 
 
 | Chapter | Main questions it answers | Implementation |
 |---|---|---|
+| [Merge sort and quicksort](sorting/README.md) | How do stable merging and randomized partitioning differ? | `sorting.hpp` |
 | [Search, prefixes, and windows](search-and-windows/README.md) | When can a boundary move only forward? What makes binary search valid? | `arrays.hpp`, `patterns.hpp` |
 | [Monotonic structures and greedy](monotonic-and-greedy/README.md) | Why can candidates be discarded? How do elements own subarrays? | `arrays.hpp` |
 | [Range queries and offline processing](range-queries/README.md) | Fenwick or segment tree? Why does lazy propagation work? | `data_structures.hpp`, `offline.hpp` |
@@ -27,6 +28,8 @@ The chapters are explanation-oriented: each algorithm or closely related family 
 | [Integer geometry](geometry/README.md) | How do orientation tests support intersections and convex hulls? | `geometry.hpp` |
 
 ## How to run the examples
+
+For the on-platform LC revision tracker, local sample/stress runners, debugger, and submission exporter, use the separate **[Practice workflow guide](practice-workflow/README.md)**. It is a how-to guide, not another algorithm chapter.
 
 Every `cpp` block in a topic chapter is an independent **`main()` body snippet**, not a complete judge submission. Put one snippet inside this wrapper and save it as `practice\example.cpp`:
 

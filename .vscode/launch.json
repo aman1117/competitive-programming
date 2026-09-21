@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C++: debug active file (keyboard input)",
+            "type": "lldb-dap",
+            "request": "launch",
+            "program": "${workspaceFolder}\\.build\\debug\\program.exe",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "CP: build active C++ (debug)",
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "C++: debug active file (input.txt)",
+            "type": "lldb-dap",
+            "request": "launch",
+            "program": "${workspaceFolder}\\.build\\debug\\program.exe",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "CP: build active C++ (debug)",
+            "stopOnEntry": false,
+            "preRunCommands": [
+                "settings set target.input-path '${workspaceFolder}\\input.txt'"
+            ]
+        }
+    ]
+}

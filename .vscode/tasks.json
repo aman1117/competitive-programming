@@ -1,0 +1,47 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CP: build active C++ (debug)",
+            "type": "process",
+            "command": "python",
+            "args": ["${workspaceFolder}\\scripts\\cp_workflow.py", "build", "${file}", "--mode", "debug"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "problemMatcher": ["$gcc"],
+            "group": {"kind": "build", "isDefault": true}
+        },
+        {
+            "label": "CP: run active C++ (diagnostic)",
+            "type": "process",
+            "command": "python",
+            "args": ["${workspaceFolder}\\scripts\\cp_workflow.py", "run", "${file}", "--mode", "diagnostic"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "CP: judge active C++ samples",
+            "type": "process",
+            "command": "python",
+            "args": ["${workspaceFolder}\\scripts\\cp_workflow.py", "judge", "${file}"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "problemMatcher": ["$gcc"],
+            "group": {"kind": "test", "isDefault": true}
+        },
+        {
+            "label": "LC: show due revisions",
+            "type": "process",
+            "command": "python",
+            "args": ["${workspaceFolder}\\scripts\\cp_workflow.py", "due"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "problemMatcher": []
+        },
+        {
+            "label": "CP: check toolkit",
+            "type": "process",
+            "command": "pwsh",
+            "args": ["-NoProfile", "-File", "${workspaceFolder}\\scripts\\test.ps1"],
+            "options": {"cwd": "${workspaceFolder}"},
+            "problemMatcher": ["$gcc"]
+        }
+    ]
+}

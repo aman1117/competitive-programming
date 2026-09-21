@@ -14,6 +14,7 @@
 #include "offline.hpp"
 #include "patterns.hpp"
 #include "search.hpp"
+#include "sorting.hpp"
 #include "strings.hpp"
 #include "trees.hpp"
 // IWYU pragma: end_exports

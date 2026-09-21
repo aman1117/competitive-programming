@@ -1,5 +1,11 @@
 .build/
 .cache/
+.practice/
+__pycache__/
+*.pyc
+submission.cpp
+core
+core.*
 *.exe
 *.obj
 *.o

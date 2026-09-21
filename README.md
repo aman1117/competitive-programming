@@ -6,7 +6,7 @@ A **LeetCode-first C++17 toolkit**, also covering the core Codeforces Expert rep
 
 ## Algorithm explanations and worked examples
 
-Read the **[Algorithm handbook](docs/README.md)** for 15 topic-specific READMEs covering the implemented algorithms and their prerequisites. Each chapter explains when to use its techniques, the invariant or recurrence, worked examples, C++ usage, time/space reasoning, and common failure cases.
+Read the **[Algorithm handbook](docs/README.md)** for 16 topic-specific READMEs covering the implemented algorithms and their prerequisites. Each chapter explains when to use its techniques, the invariant or recurrence, worked examples, C++ usage, time/space reasoning, and common failure cases.
 
 Start with [search and windows](docs/search-and-windows/README.md), [monotonic and greedy patterns](docs/monotonic-and-greedy/README.md), and [sequence DP](docs/sequence-dp/README.md). For deeper material, see [range queries](docs/range-queries/README.md), [graph paths](docs/graph-paths/README.md), [tree algorithms](docs/trees/README.md), and [interval/bitmask/digit DP](docs/advanced-dp/README.md). The handbook index links every chapter and its source headers.
 
@@ -14,11 +14,14 @@ Start with [search and windows](docs/search-and-windows/README.md), [monotonic a
 
 Your workspace is `C:\Users\amansha\competitive-programming`.
 
+**LeetCode solving stays on LeetCode.** Use this workspace for revision and optional local C++/Codeforces work, not as a replacement LC client. Start with the **[Practice workflow guide](docs/practice-workflow/README.md)** for the new commands, revision schedule, sample/stress runners, diagnostics, and debugger.
+
 ```powershell
 cd "$HOME\competitive-programming"
 
 # Open a NEW PowerShell 7 terminal, or load the new shortcut in this terminal:
 . $PROFILE.CurrentUserAllHosts
+cptool due                             # Your locally logged revision queue
 
 cprun                                  # Compile .\main.cpp, run with keyboard input
 cprun .\main.cpp -InputFile .\input.txt  # Run with input from a file
@@ -28,16 +31,21 @@ cprun .\templates\leetcode.cpp -Local  # LeetCode starter's local driver (prints
 # A working range-sum example (expected output: 15, 16, 10 on separate lines):
 cprun .\examples\range_sum.cpp -InputFile .\examples\range_sum.in
 
-# Copy the starter for a new problem:
-Copy-Item .\main.cpp .\practice\a.cpp
+# Fresh local/Codeforces problem folder (never overwrites existing files):
+cptool new cf-practice
+
+# Judge the existing sample:
+cptool judge .\examples\range_sum.cpp --cases .\examples
 
 # Run the library's self-contained tests (no external test framework):
 .\scripts\test.ps1
 ```
 
-`cprun` is installed in your **current-user/all-hosts PowerShell 7 profile**, so it works from any working directory in new PowerShell 7 sessions. It is not a Bash or cmd.exe alias. Source/input paths are relative to your current directory; quote paths containing spaces. The default compiler is the already-installed `g++`; use `-Compiler clang++` to select another GCC/Clang-compatible driver.
+`cprun` and `cptool` are installed in your **current-user/all-hosts PowerShell 7 profile**, so they work from any working directory in new PowerShell 7 sessions. They are not Bash or cmd.exe aliases. Workflow scripts require **Python 3.10+**, already installed here, with no third-party Python packages. Source/input paths are relative to your current directory; quote paths containing spaces. The default compiler is the already-installed `g++`; use `-Compiler clang++` for `cprun` or `--compiler clang++` for `cptool`.
 
 The shortcut stops on compiler errors, reports nonzero program exit codes, and removes its uniquely named executable afterward. Builds use C++17, `-Wall -Wextra -Wshadow`, and `-O2` by default. `-Local` adds `-DLOCAL -g -O0`; it does **not** enable a sanitizer. Input-file redirection preserves file bytes. Without `-InputFile`, finish manual input as your console requires (usually Ctrl+Z then Enter on Windows), or let the program finish after reading the expected input.
+
+Use `-Diagnostic` for supported undefined-behavior traps and standard-library assertions, optionally with `-TimeoutSeconds 5`. This is not full AddressSanitizer coverage on native Windows. `cptool judge` and `stress` apply time/output limits and report failures; see the workflow guide for exact semantics.
 
 Without the profile shortcut, call the script directly:
 
@@ -79,9 +87,10 @@ clangd activates only in trusted workspaces. Trust this folder only if you trust
 
 ```text
 competitive-programming\
-  main.cpp                 Standalone Codeforces submission starter
+  main.cpp                 Your working Codeforces file (may include local headers)
   input.txt                Scratch input (starts with t=1)
   templates\leetcode.cpp   LeetCode class/method starter + LOCAL-only sample driver
+  templates\codeforces.cpp  Clean standalone starter used by cptool new
   include\cp\              Reusable, commented algorithm headers
   docs\README.md           Algorithm handbook and chapter index
   docs\<topic>\README.md   Worked explanations, examples, invariants, and TC/SC
@@ -91,6 +100,11 @@ competitive-programming\
   tests\                   Deterministic and seeded differential tests
   scripts\run-cpp.ps1       Compile-and-run implementation for cprun
   scripts\test.ps1          Header, starter, and algorithm checks
+  scripts\cp_workflow.py    Portable build/run/judge/stress/export commands
+  scripts\revision.py       Local mistake history and spaced-review schedule
+  .practice\               Git-ignored revision database and failure snapshots
+  .clang-format             Selected-file formatting policy
+  .github\workflows\cpp.yml  Linux GCC/Clang checks with sanitizers after push
   .vscode\                 clangd extension recommendation and editor settings
   .clangd                  Compiler selection for the language server
   compile_flags.txt        C++17/include flags shared by editor analysis
@@ -99,7 +113,7 @@ competitive-programming\
 
 ### Codeforces and LeetCode use
 
-`main.cpp` is standalone and uses standard C++17 headers, not compiler-specific `bits/stdc++.h`, PBDS, or `#define int long long`. Its `solve()` is intentionally empty. It reads a leading test-case count by default: set `MULTIPLE_TEST_CASES = false` for problems without `t`. Reset all per-test state inside `solve()`. `debug(...)` prints streamable values to stderr only with `-Local`.
+The root `main.cpp` is your working file and currently includes a local toolkit header; do not assume it is submission-ready unchanged. Its `solve()` starts empty and reads a leading test-case count by default: set `MULTIPLE_TEST_CASES = false` for problems without `t`. Reset all per-test state inside `solve()`. `debug(...)` prints streamable values to stderr with `-Local` or `-Diagnostic`. For a clean standalone starter, use `templates\codeforces.cpp` through `cptool new`. To flatten toolkit includes safely, use `cptool export ... --output submission.cpp`.
 
 For local practice you may include a specific header, or the whole library:
 
@@ -197,6 +211,15 @@ Read each function's comment before copying it. It states the required input, re
 Bounds below use positive dimensions and suppress constant empty-input overhead. `n,m` are sequence lengths, `V,E` graph vertices/edges, `q` queries, `W` capacity, `A` amount, `D` digits, `S` target digit sum, `B` bit width, `h` tree height, and `w` maximum tree width.
 
 ## Algorithm index
+
+### Sorting -- `sorting.hpp`
+
+| Template | TC | Auxiliary SC | Important detail |
+|---|---|---|---|
+| `merge_sort` | Worst-case O(n log(n+1)) | O(n) | Stable bottom-up merge sort; copyable values and strict weak comparator |
+| `quick_sort` | Expected O(n log(n+1)), worst O(n^2) | Worst-case O(log(n+1)) | Seeded three-way partition; recurse on smaller side; not stable |
+
+See the [sorting guide](docs/sorting/README.md) for worked examples and the role of `std::sort` versus educational implementations.
 
 ### Arrays, searching, sliding windows, greedy -- `arrays.hpp`, `patterns.hpp`
 

@@ -12,45 +12,20 @@ param(
     [string]$Source = '.\main.cpp',
     [string]$InputFile,
     [switch]$Local,
+    [switch]$Diagnostic,
+    [ValidateRange(0, 86400)]
+    [double]$TimeoutSeconds = 0,
     [string]$Compiler = 'g++'
 )
 
 $ErrorActionPreference = 'Stop'
-$sourcePath = (Resolve-Path -LiteralPath $Source -ErrorAction Stop).ProviderPath
-if ([System.IO.Path]::GetExtension($sourcePath) -ne '.cpp') {
-    throw "Expected a .cpp file: $sourcePath"
-}
-$inputPath = if ($InputFile) {
-    (Resolve-Path -LiteralPath $InputFile -ErrorAction Stop).ProviderPath
-} else { $null }
-$compilerCommand = Get-Command -Name $Compiler -CommandType Application -ErrorAction Stop
-$root = Split-Path -Parent $PSScriptRoot
-$buildDirectory = Join-Path $root '.build'
-New-Item -ItemType Directory -Path $buildDirectory -Force | Out-Null
-# A unique executable avoids collisions between files with the same name and
-# concurrent terminals. Never execute a stale binary after a failed build.
-$executable = Join-Path $buildDirectory ("run-{0}.exe" -f [guid]::NewGuid().ToString('N'))
-$flags = @('-std=c++17', '-Wall', '-Wextra', '-Wshadow', '-I', (Join-Path $root 'include'))
-if ($Local) { $flags += @('-O0', '-g', '-DLOCAL') }
-else { $flags += '-O2' }
-
-try {
-    & $compilerCommand.Source @flags $sourcePath '-o' $executable
-    if ($LASTEXITCODE -ne 0) {
-        throw "C++ compilation failed (exit $LASTEXITCODE). Program was not run."
-    }
-    if ($inputPath) {
-        # Native redirection preserves bytes; PowerShell's Get-Content pipeline
-        # can otherwise alter encodings/newlines. Output stays in the terminal.
-        $process = Start-Process -FilePath $executable -NoNewWindow -Wait -PassThru -RedirectStandardInput $inputPath
-        $global:LASTEXITCODE = $process.ExitCode
-        $process.Dispose()
-    } else {
-        & $executable
-    }
-    if ($LASTEXITCODE -ne 0) { throw "C++ program exited with code $LASTEXITCODE." }
-} finally {
-    if (Test-Path -LiteralPath $executable) {
-        Remove-Item -LiteralPath $executable -Force
-    }
-}
+$python = Get-Command python -CommandType Application -ErrorAction Stop | Select-Object -First 1
+$mode = if ($Diagnostic) { 'diagnostic' } elseif ($Local) { 'debug' } else { 'release' }
+$arguments = @(
+    (Join-Path $PSScriptRoot 'cp_workflow.py'), 'run', $Source,
+    '--compiler', $Compiler, '--mode', $mode,
+    '--timeout', $TimeoutSeconds.ToString([System.Globalization.CultureInfo]::InvariantCulture)
+)
+if ($InputFile) { $arguments += @('--input', $InputFile) }
+& $python.Source @arguments
+if ($LASTEXITCODE -ne 0) { throw "C++ compile/run failed (exit $LASTEXITCODE). See the error above." }

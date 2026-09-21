@@ -1,28 +1,28 @@
-// Codeforces C++17 starter: this file is standalone and submit-ready.
-// Add only the algorithm code you need; judges cannot see your local headers.
-#include <algorithm>
-#include <array>
-#include <cassert>
-#include <cmath>
-#include <cstdint>
-#include <deque>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <limits>
-#include <map>
-#include <numeric>
-#include <optional>
-#include <queue>
-#include <set>
-#include <stack>
-#include <string>
-#include <tuple>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
-#include "cp/arrays.hpp"
+// Local Codeforces C++17 working file; expand cp/... includes before submission.
+// Starter headers are intentionally kept ready for solve(); trim them if desired.
+#include <algorithm> // IWYU pragma: keep
+#include <array> // IWYU pragma: keep
+#include <cassert> // IWYU pragma: keep
+#include <cmath> // IWYU pragma: keep
+#include <cstdint> // IWYU pragma: keep
+#include <deque> // IWYU pragma: keep
+#include <functional> // IWYU pragma: keep
+#include <iomanip> // IWYU pragma: keep
+#include <iostream> // IWYU pragma: keep
+#include <limits> // IWYU pragma: keep
+#include <map> // IWYU pragma: keep
+#include <numeric> // IWYU pragma: keep
+#include <optional> // IWYU pragma: keep
+#include <queue> // IWYU pragma: keep
+#include <set> // IWYU pragma: keep
+#include <stack> // IWYU pragma: keep
+#include <string> // IWYU pragma: keep
+#include <tuple> // IWYU pragma: keep
+#include <unordered_map> // IWYU pragma: keep
+#include <unordered_set> // IWYU pragma: keep
+#include <utility> // IWYU pragma: keep
+#include <vector> // IWYU pragma: keep
+#include "cp/arrays.hpp" // IWYU pragma: keep
 
 using namespace std;
 using i64 = long long;

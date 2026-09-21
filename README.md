@@ -65,6 +65,8 @@ code "$HOME\competitive-programming"
 
 Open `examples\hover_demo.cpp` and hover over `Fenwick`, `add`, `sum`, `count_inversions`, or `unite`. The popups show signatures and the declaration documentation: purpose, assumptions, return behavior, and TC/SC. On first open, allow a few seconds for header indexing; an early hover may initially show only the signature. You can also request a hover with **Ctrl+K, then Ctrl+I**. If the folder was already open during installation, run **Developer: Reload Window** from the command palette.
 
+Hovering an `#include` shows its resolved header path and provided symbols, not algorithm explanations. Hover the function name at its declaration or call instead. Starter imports in `main.cpp` and `templates` use `// IWYU pragma: keep` because they are intentionally available before you finish a solution; unused-include diagnostics remain active for other, unmarked includes. Remove unnecessary imports from a finished solution if desired.
+
 Library declaration comments use Doxygen-compatible `///` syntax. For your own functions, put documentation immediately **above the declaration**, not only inside its body:
 
 ```cpp

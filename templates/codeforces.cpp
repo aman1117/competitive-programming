@@ -1,10 +1,11 @@
 // Standalone C++17 starter. Add only the headers and algorithms this problem needs.
-#include <algorithm>
-#include <cassert>
-#include <iostream>
-#include <numeric>
-#include <string>
-#include <vector>
+// Keep these starter facilities available while solve() is still being written.
+#include <algorithm> // IWYU pragma: keep
+#include <cassert> // IWYU pragma: keep
+#include <iostream> // IWYU pragma: keep
+#include <numeric> // IWYU pragma: keep
+#include <string> // IWYU pragma: keep
+#include <vector> // IWYU pragma: keep
 
 using i64 = long long;
 

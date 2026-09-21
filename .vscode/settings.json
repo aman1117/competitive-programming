@@ -14,5 +14,6 @@
     },
     "files.associations": {
         "*.hpp": "cpp"
-    }
+    },
+    "editor.fontSize": 14
 }

@@ -1,0 +1,19 @@
+DP
+    PROBLEMS:
+    1. Can't think of edge cases before submitting will ask for questions will strengthn thinking of edge cases.
+    BOTTOM UP APPROACH THINKING
+    1. State: each parameter that changes in  f(...)  becomes one table dimension.
+    2. Size: each dimension's size = largest index the recursion reaches +
+        1. For example, calling  f(i+2)  means size  n+2 .
+    3. Base cases: each  return  base case becomes a starting value in the table.
+    4. Loop direction: if  f(i)  calls  f(i+1) , loop  i  downward. If it calls  f(i-1) , loop  i  upward. Check each dimension separately.
+    5. Body: copy the recursion body as-is, replacing  f(  with  dp[ .
+    6. Answer: return the cell matching the first call. For example,  f(0)  becomes  dp[0] .
+    RECURSION TO DP:
+    1. Return, don't record: no  void  function updating a global  best  or  count . Make  f(...)  return the answer for its subproblem.
+    2. Pure test: calling  f  with the same arguments must always return the same result. If it doesn't, the result depends on something outside the parameters, so fix that first.
+    3. Score-only parameter: a parameter like  sumSoFar  that's only used to update the answer gets removed. Add it in the return instead:  a[i] + f(i+2) .
+    4. Decision parameter: a parameter that affects a choice or a base case (target, capacity, previous index, holding flag) stays. It's the state.
+    5. Keys must be small integers: previous value → previous index (store at  p+1  so  -1  fits), negative sum → add an offset, vector or set → index or bitmask.
+    6. Memo table: one dimension per remaining parameter. Size = largest value the parameter reaches + 1.
+    7. Template: base case → check memo → compute → store and return. The empty-cell marker ( -1 ) must never be a real answer. If it can be, use  INT_MIN  or a separate  visited  array.

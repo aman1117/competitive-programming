@@ -10,6 +10,10 @@ Read the **[Algorithm handbook](docs/README.md)** for 16 topic-specific READMEs 
 
 Start with [search and windows](docs/search-and-windows/README.md), [monotonic and greedy patterns](docs/monotonic-and-greedy/README.md), and [sequence DP](docs/sequence-dp/README.md). For deeper material, see [range queries](docs/range-queries/README.md), [graph paths](docs/graph-paths/README.md), [tree algorithms](docs/trees/README.md), and [interval/bitmask/digit DP](docs/advanced-dp/README.md). The handbook index links every chapter and its source headers.
 
+## Interview prep: Google / Uber level
+
+The **[Interview prep lists](interview-prep/README.md)** cover 19 DSA topics with curated LeetCode problems, including the [DP list](interview-prep/15-dynamic-programming.md). Each topic has a pattern guide, ⭐ must-do problems, Google/Uber company-tag signals, progress checkboxes, and a 12-week plan.
+
 ## Start here
 
 Your workspace is `C:\Users\amansha\competitive-programming`.
@@ -96,6 +100,7 @@ competitive-programming\
   include\cp\              Reusable, commented algorithm headers
   docs\README.md           Algorithm handbook and chapter index
   docs\<topic>\README.md   Worked explanations, examples, invariants, and TC/SC
+  interview-prep\          Google/Uber-level topic practice lists (start at README.md)
   examples\                Runnable Fenwick example and sample input/output
   examples\hover_demo.cpp  Small program for trying documented function hovers
   practice\                Your solutions
